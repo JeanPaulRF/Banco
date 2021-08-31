@@ -57,7 +57,7 @@ CREATE TABLE TipoCuentaAhorro(
 CREATE TABLE Persona(
 	ID int IDENTITY(1,1),
 	Nombre varchar(40) not null,
-	ValorDeIdentidad int,
+	ValorDeIdentidad int not null,
 	FechaDeNacimiento date not null,
 	Email TCorreo not null,
 	Telefono1 int not null,
@@ -81,7 +81,7 @@ CREATE TABLE Usuario(
 	Contrasena varchar(20) not null,
 	Administrador bit not null,
 	
-	CONSTRAINT pk_Beneficiario PRIMARY KEY (ID)
+	CONSTRAINT pk_Usuario PRIMARY KEY (ID)
 );
 
 -- FKs
@@ -107,5 +107,5 @@ ALTER TABLE CuentaAhorro
 
 -- Beneficiario-Parentesco
 ALTER TABLE Beneficiario 
-	ADD CONSTRAINT fk_CuentaAhorro_TipoCuentaAhorro FOREIGN KEY (ValorParentesco) 
+	ADD CONSTRAINT fk_CuentaAhorro_Beneficiario FOREIGN KEY (ValorParentesco) 
 	REFERENCES Parentesco (ID);
