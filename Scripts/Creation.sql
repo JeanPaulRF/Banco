@@ -32,6 +32,8 @@ CREATE TABLE CuentaAhorro(
 	ID int not null,
 	Saldo money not null,
 	FechaConstitucion date not null,
+	IdentidadCliente int not null,
+	TipoCuenta int not null,
 	
 	CONSTRAINT pk_CuentaAhorro PRIMARY KEY (ID)
 );
@@ -55,7 +57,7 @@ CREATE TABLE TipoCuentaAhorro(
 CREATE TABLE Persona(
 	ID int IDENTITY(1,1),
 	Nombre varchar(40) not null,
-	ValorDeIdentidad int not null,
+	ValorDeIdentidad int,
 	FechaDeNacimiento date not null,
 	Email TCorreo not null,
 	Telefono1 int not null,
@@ -67,13 +69,43 @@ CREATE TABLE Persona(
 CREATE TABLE Beneficiario(
 	ID int IDENTITY(1,1),
 	Porcentaje int not null,
+	IdentidadCliente int not null,
+	ValorParentesco int not null,
+	
+	CONSTRAINT pk_Beneficiario PRIMARY KEY (ID)
+);
+
+CREATE TABLE Usuario(
+	ID int IDENTITY(1,1),
+	Nombre varchar(20) not null,
+	Contrasena varchar(20) not null,
+	Administrador bit not null,
 	
 	CONSTRAINT pk_Beneficiario PRIMARY KEY (ID)
 );
 
 -- FKs
--- Direccion-Distrito
---ALTER TABLE Persona 
---ADD CONSTRAINT fk_TipoIdentidad
---FOREIGN KEY (ID) 
---REFERENCES TipoIdentidad (ID)
+-- Persona-TipoIdentidad
+ALTER TABLE Persona 
+	ADD CONSTRAINT fk_Persona_TipoIdentidad FOREIGN KEY (ValorDeIdentidad) 
+	REFERENCES TipoIdentidad (ID);
+
+-- Beneficiario-Persona
+ALTER TABLE Beneficiario 
+	ADD CONSTRAINT fk_Beneficiario_Persona FOREIGN KEY (IdentidadCliente) 
+	REFERENCES Persona (ID);
+
+-- CuentaAhorro-Persona
+ALTER TABLE CuentaAhorro 
+	ADD CONSTRAINT fk_CuentaAhorro_Persona FOREIGN KEY (IdentidadCliente) 
+	REFERENCES Persona (ID);
+
+-- CuentaAhorro-TipoCuentaAhorro
+ALTER TABLE CuentaAhorro 
+	ADD CONSTRAINT fk_CuentaAhorro_TipoCuentaAhorro FOREIGN KEY (IdentidadCliente) 
+	REFERENCES TipoCuentaAhorro (ID);
+
+-- Beneficiario-Parentesco
+ALTER TABLE Beneficiario 
+	ADD CONSTRAINT fk_CuentaAhorro_TipoCuentaAhorro FOREIGN KEY (ValorParentesco) 
+	REFERENCES Parentesco (ID);
