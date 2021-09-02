@@ -29,18 +29,19 @@ CREATE TABLE Parentesco(
 );
 
 CREATE TABLE CuentaAhorro(
-	ID int not null,
+	ID int IDENTITY(1,1),
+	NumeroCuenta varchar(32) not null,   
 	Saldo money not null,
 	FechaConstitucion date not null,
-	IdentidadCliente int not null,
+	ValorDocumentoIdentidadCliente int not null,
 	TipoCuenta int not null,
 	
 	CONSTRAINT pk_CuentaAhorro PRIMARY KEY (ID)
 );
 
 CREATE TABLE TipoCuentaAhorro(
-	ID int IDENTITY(1,1),
-	Nombre varchar(20) not null,
+	ID int not null,
+	Nombre varchar(32) not null,
 	IdTipoMoneda int not null,
 	SaldoMinimo money not null,
 	MultaSaldoMin money not null,
@@ -56,8 +57,9 @@ CREATE TABLE TipoCuentaAhorro(
 
 CREATE TABLE Persona(
 	ID int IDENTITY(1,1),
-	Nombre varchar(40) not null,
-	ValorDeIdentidad int not null,
+	Nombre varchar(64) not null,
+	ValorDocumentoIdentidad varchar(32) not null,
+	TipoIdentidad int not null,
 	FechaDeNacimiento date not null,
 	Email TCorreo not null,
 	Telefono1 int not null,
@@ -87,7 +89,7 @@ CREATE TABLE Usuario(
 -- FKs
 -- Persona-TipoIdentidad
 ALTER TABLE Persona 
-	ADD CONSTRAINT fk_Persona_TipoIdentidad FOREIGN KEY (ValorDeIdentidad) 
+	ADD CONSTRAINT fk_Persona_TipoIdentidad FOREIGN KEY (TipoIdentidad) 
 	REFERENCES TipoIdentidad (ID);
 
 -- Beneficiario-Persona
@@ -97,12 +99,12 @@ ALTER TABLE Beneficiario
 
 -- CuentaAhorro-Persona
 ALTER TABLE CuentaAhorro 
-	ADD CONSTRAINT fk_CuentaAhorro_Persona FOREIGN KEY (IdentidadCliente) 
+	ADD CONSTRAINT fk_CuentaAhorro_Persona FOREIGN KEY (ValorDocumentoIdentidadCliente) 
 	REFERENCES Persona (ID);
 
 -- CuentaAhorro-TipoCuentaAhorro
 ALTER TABLE CuentaAhorro 
-	ADD CONSTRAINT fk_CuentaAhorro_TipoCuentaAhorro FOREIGN KEY (IdentidadCliente) 
+	ADD CONSTRAINT fk_CuentaAhorro_TipoCuentaAhorro FOREIGN KEY (ValorDocumentoIdentidadCliente) 
 	REFERENCES TipoCuentaAhorro (ID);
 
 -- Beneficiario-Parentesco
