@@ -15,14 +15,15 @@ SET @xmlData =
 
 
 INSERT INTO [dbo].[Persona](
-	[ID],   -- FK a TipoDucumentoIdentidad
+	[TipoIdentidad],
 	[Nombre],
-	[ValorDeIdentidad],
+	[ValorDocumentoIdentidad],
 	[FechaDeNacimiento],
 	[Email],
 	[Telefono1],
 	[Telefono2])
-SELECT  T.Item.value('@TipoDocuIdentidad','INT'),
+SELECT 
+	T.Item.value('@TipoDocuIdentidad','INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)'),
 	T.Item.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'),
 	T.Item.value('@FechaNacimiento','DATE'),
@@ -30,6 +31,17 @@ SELECT  T.Item.value('@TipoDocuIdentidad','INT'),
 	T.Item.value('@telefono1','VARCHAR(16)'),
 	T.Item.value('@telefono2','VARCHAR(16)')
 FROM @xmlData.nodes('Personas/Persona') as T(Item)
+
+
+INSERT INTO [dbo].[Usuario](
+	[Nombre],
+	[Contrasena],
+	[Administrador])
+SELECT 
+	T.Item.value('@User', 'VARCHAR(16)'),
+	T.Item.value('@Pass', 'VARCHAR(32)'),
+	T.Item.value('@EsAdministrador', 'BIT')
+FROM @xmlData.nodes('Usuarios/Usuario') as T(Item)
 
 
 DECLARE @TempCuentas TABLE
@@ -46,13 +58,8 @@ SELECT T.Item.value('@TipoCuentaId','INT'),
 	T.Item.value('@NumeroCuenta','VARCHAR(50)')
 FROM @xmlData.nodes('Cuentas/Cuenta') as T(Item)
 
-INSERT [dbo].[CuentaAhorro] ([TipoCuenta], [IdentidadCliente], NumeroCuenta, Saldo)
-SELECT  C.TipoCuenta, P.Id, T.NumeroCuenta, 0
-FROM @TempCuentas C
-INNER JOIN dbo.Personas on C.ValDocIDent=P.ValDocIDent
-
 -- otra manera, es equivalente
-Insert dbo.Cuentas (IdTipoCuenta, IdPersona, NumeroCuenta, Saldo)
-SELECT  C.IdTipoCuenta, P.Id, T.NumeroCuenta, 0
-FROM @TempCuentas C, dbo.Personas 
-WHERE C.ValDocIDent=P.ValDocIDent
+Insert [dbo].[CuentaAhorro] ([TipoCuenta], [ValorDocumentoIdentidadCliente], [NumeroCuenta], [Saldo])
+SELECT  C.TipoCuenta, P.ID, C.NumeroCuenta, 0
+FROM @TempCuentas C, [dbo].[Persona] P 
+WHERE C.IdentidadCliente=P.[ValorDocumentoIdentidad]
