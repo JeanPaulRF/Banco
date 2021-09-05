@@ -1,6 +1,8 @@
 USE Banco
 GO
 
+--SELECT * FROM [dbo].[Parentesco]
+
 DECLARE @xmlData XML
 
 SET @xmlData = 
@@ -15,6 +17,11 @@ SELECT
 	T.Item.value('@Nombre', 'VARCHAR(64)')
 FROM @xmlData.nodes('Tipo_Doc/TipoDocuIdentidad') as T(Item)
 
+INSERT INTO [dbo].[Moneda]([ID], [Nombre])
+SELECT  
+	T.Item.value('@Id', 'INT'),
+	T.Item.value('@Nombre', 'VARCHAR(16)')
+FROM @xmlData.nodes('Monedas/Moneda') as T(Item)
 
 INSERT INTO [dbo].[TipoCuentaAhorro]
 	([ID], 
