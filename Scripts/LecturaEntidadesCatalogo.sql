@@ -11,20 +11,20 @@ SET @xmlData =
 		AS xmlData);
 
 
-INSERT INTO [dbo].[TipoIdentidad]([ID], [Nombre])
+INSERT INTO [dbo].[TipoIdentidad]([IdTipoIdentidad], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)')
 FROM @xmlData.nodes('Tipo_Doc/TipoDocuIdentidad') as T(Item)
 
-INSERT INTO [dbo].[Moneda]([ID], [Nombre])
+INSERT INTO [dbo].[Moneda]([IdMoneda], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(16)')
 FROM @xmlData.nodes('Monedas/Moneda') as T(Item)
 
 INSERT INTO [dbo].[TipoCuentaAhorro]
-	([ID], 
+	([IdTipoCuentaAhorro], 
 	[Nombre],
 	[IdTipoMoneda],
 	[SaldoMinimo],
@@ -50,7 +50,7 @@ SELECT
 FROM @xmlData.nodes('Tipo_Cuenta_Ahorros/TipoCuentaAhorro') as T(Item)
 
 
-INSERT INTO [dbo].[Parentesco]([ID], [Nombre])
+INSERT INTO [dbo].[Parentesco]([IdParentesco], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)')

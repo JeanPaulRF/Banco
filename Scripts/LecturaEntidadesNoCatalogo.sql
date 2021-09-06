@@ -66,14 +66,14 @@ FROM @xmlData.nodes('Cuentas/Cuenta') as T(Item)
 -- Mapeo @TempCuentas-CuentaAhorro
 DELETE [dbo].[CuentaAhorro]
 INSERT INTO [dbo].[CuentaAhorro](
-	[IDCliente], 
+	[IdentificacionCliente], 
 	[NumeroCuenta], 
 	[Saldo], 
 	[FechaConstitucion],
 	[ValorDocumentoIdentidadCliente],
 	[TipoCuenta]
 	)
-SELECT P.ID,
+SELECT P.IdPersona,
 	C.NumeroCuenta,
 	C.Saldo,
 	C.Fecha,
@@ -104,15 +104,15 @@ FROM @xmlData.nodes('Beneficiarios/Beneficiario') as T(Item)
 
 -- Mapeo @@TempBeneficiario-Beneficiario
 INSERT INTO [dbo].[Beneficiario](
-	[IDCliente], 
-	[IDCuenta], 
+	[IdentificacionCliente], 
+	[IdentificacionCuenta], 
 	[NumeroCuenta], 
 	[Porcentaje],
 	[ValorDocumentoIdentidadBeneficiario],
 	[ValorParentesco]
 	)
-SELECT C.IDCliente,
-	C.ID,
+SELECT C.IdentificacionCliente,
+	C.IdCuentaAhorro,
 	C.NumeroCuenta,
 	B.Porcentaje,
 	B.ValorDocumentoIdentidadBeneficiario,
@@ -134,16 +134,14 @@ FROM @xmlData.nodes('Usuarios_Ver/UsuarioPuedeVer') as T(Item)
 
 -- Mapeo @TempUsuario-UsuarioPuedeVer
 INSERT INTO [dbo].[UsuarioPuedeVer](
-	[IDCuenta],
-	[IDUsuario],
+	[IdentificacionCuenta],
+	[IdentificacionUsuario],
 	[Nombre],
 	[NumeroCuenta]
 	)
-SELECT C.ID,
-	A.ID,
+SELECT C.IdCuentaAhorro,
+	A.IdUsuario,
 	A.Nombre,
 	C.NumeroCuenta
 FROM @TempUsuario U, [dbo].[Usuario] A, [dbo].[CuentaAhorro] C
 WHERE A.Nombre=U.Usuario AND U.NumeroCuenta=C.NumeroCuenta 
-
-SELECT * FROM [dbo].UsuarioPuedeVer
