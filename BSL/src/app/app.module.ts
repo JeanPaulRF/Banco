@@ -15,6 +15,7 @@ import { CuentasComponent } from './cuentas/cuentas.component';
 
 import {MaterialModule} from './material.module';
 import { SidebarModule } from './shared/components/sidebar/sidebar.module';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { SidebarModule } from './shared/components/sidebar/sidebar.module';
     FooterLogginComponent,
     ClientesComponent,
     CuentasComponent,
-    FooterLogginComponent
+    FooterLogginComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

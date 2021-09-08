@@ -1,0 +1,50 @@
+<mat-toolbar color="primary">
+    <a>BSL</a>
+    <span class="move"></span>
+        <a routerLink= "/cuentas" routerLinkActive ="active"> 
+            <button mat-button>Cuentas</button> 
+        </a>
+        <a routerLink= "/clientes" routerLinkActive ="active"> 
+            <button mat-button>Clientes </button> 
+        </a>
+        <a routerLink= "/login" routerLinkActive ="active">  
+            <button mat-button>LogOut</button> 
+        </a>
+</mat-toolbar>
+
+<div class = "card-Info">
+    <mat-card>
+    <mat-card-content>
+        <form>
+            <mat-form-field  appearance="fill">
+              <mat-label>Identificacion del Cliente</mat-label>
+              <input matInput disabled value="0-0000-0000">
+            </mat-form-field>
+          
+            <table ><tr>
+              <td><mat-form-field  appearance="fill">
+                <mat-label>Tipo de Cuenta de Ahorros</mat-label>
+                <input matInput disabled value="Universidad">
+              </mat-form-field></td>
+        
+              <td><mat-form-field appearance="fill">
+                <mat-label>Numero de Cuenta</mat-label>
+                <input matInput disabled value="000000000">
+              </mat-form-field></td>
+            </tr></table>
+          
+            <mat-form-field appearance="fill">
+                <mat-label>Saldo</mat-label>
+                <input matInput disabled value="0">
+              </mat-form-field>
+            
+              <mat-form-field  appearance="fill">
+                <mat-label>Fecha de Constitucion</mat-label>
+                <input matInput disabled value="00-00-0000">
+              </mat-form-field>
+        
+          </form>
+    
+    </mat-card-content>
+  </mat-card>
+  </div>
