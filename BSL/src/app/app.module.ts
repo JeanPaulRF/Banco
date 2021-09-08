@@ -15,6 +15,8 @@ import { BodyLogginComponent } from './loggin/body-loggin/body-loggin.component'
 import { FooterLogginComponent } from './loggin/footer-loggin/footer-loggin.component';
 import { from } from 'rxjs';
 import { HomeComponent } from './home/home.component';
+import { ClientesComponent } from './clientes/clientes.component';
+import { CuentasComponent } from './cuentas/cuentas.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { HomeComponent } from './home/home.component';
     LogginComponent,
     BodyLogginComponent,
     FooterLogginComponent,
-    HomeComponent
+    HomeComponent,
+    ClientesComponent,
+    CuentasComponent
   ],
   imports: [
     BrowserModule,
