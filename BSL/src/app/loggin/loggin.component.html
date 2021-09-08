@@ -1,2 +1,11 @@
-<app-header-loggin></app-header-loggin>
-<app-body-loggin></app-body-loggin>
+<mat-sidenav-container>
+    <mat-sidenav #sidenav mode="side">
+      <mat-toolbar color="primary">Menu</mat-toolbar>
+      <app-sidebar></app-sidebar>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <app-header-loggin></app-header-loggin>
+      <router-outlet></router-outlet>
+      <app-body-loggin></app-body-loggin>  
+    </mat-sidenav-content>
+  </mat-sidenav-container>
