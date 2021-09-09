@@ -90,6 +90,7 @@ CREATE TABLE dbo.Beneficiario(
 CREATE TABLE dbo.Usuario(
 	IdUsuario int IDENTITY(1,1),
 	Nombre varchar(16) not null,
+	ValorDocumentoIdentidad varchar(32) not null,
 	Contrasena varchar(32) not null,
 	Administrador bit not null,
 	

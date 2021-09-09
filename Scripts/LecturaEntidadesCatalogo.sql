@@ -7,7 +7,7 @@ DECLARE @xmlData XML
 
 SET @xmlData = 
 		(SELECT *
-		FROM OPENROWSET(BULK 'C:\Archivos\DatosCatalogos.xml', SINGLE_BLOB) 
+		FROM OPENROWSET(BULK 'C:\Archivos\DatosTarea-1.xml', SINGLE_BLOB) 
 		AS xmlData);
 
 
@@ -15,13 +15,15 @@ INSERT INTO [dbo].[TipoIdentidad]([IdTipoIdentidad], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)')
-FROM @xmlData.nodes('Tipo_Doc/TipoDocuIdentidad') as T(Item)
+FROM @xmlData.nodes('Datos/Tipo_Doc/TipoDocuIdentidad') as T(Item)
+
 
 INSERT INTO [dbo].[Moneda]([IdMoneda], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(16)')
-FROM @xmlData.nodes('Monedas/Moneda') as T(Item)
+FROM @xmlData.nodes('Datos/Tipo_Moneda/TipoMoneda') as T(Item)
+
 
 INSERT INTO [dbo].[TipoCuentaAhorro]
 	([IdTipoCuentaAhorro], 
@@ -44,14 +46,14 @@ SELECT
 	T.Item.value('@CargoAnual', 'INT'),
 	T.Item.value('@NumRetirosHumano', 'INT'),
 	T.Item.value('@NumRetirosAutomatico', 'INT'),
-	T.Item.value('@comisionHumano', 'INT'),
-	T.Item.value('@comisionAutomatico', 'INT'),
-	T.Item.value('@interes', 'INT')
-FROM @xmlData.nodes('Tipo_Cuenta_Ahorros/TipoCuentaAhorro') as T(Item)
+	T.Item.value('@ComisionHumano', 'INT'),
+	T.Item.value('@ComisionAutomatico', 'INT'),
+	T.Item.value('@Interes', 'INT')
+FROM @xmlData.nodes('Datos/Tipo_Cuenta_Ahorros/TipoCuentaAhorro') as T(Item)
 
 
 INSERT INTO [dbo].[Parentesco]([IdParentesco], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)')
-FROM @xmlData.nodes('Parentezcos/Parentezco') as T(Item)
+FROM @xmlData.nodes('Datos/Parentezcos/Parentezco') as T(Item)

@@ -7,10 +7,10 @@ DECLARE @CurrentTime DATETIME=GETDATE();
 
 SET @xmlData = 
 		(SELECT *
-		FROM OPENROWSET(BULK 'C:\Archivos\DatosNoCatalogo.xml', SINGLE_BLOB) 
+		FROM OPENROWSET(BULK 'C:\Archivos\DatosTarea-1.xml', SINGLE_BLOB) 
 		AS xmlData);
 
-DELETE [dbo].[Persona]
+
 INSERT INTO [dbo].[Persona](
 	[TipoIdentidad],
 	[Nombre],
@@ -25,20 +25,29 @@ SELECT
 	T.Item.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'),
 	T.Item.value('@FechaNacimiento','DATE'),
 	T.Item.value('@Email','VARCHAR(64)'),
-	T.Item.value('@telefono1','VARCHAR(16)'),
-	T.Item.value('@telefono2','VARCHAR(16)')
-FROM @xmlData.nodes('Personas/Persona') as T(Item)
+	T.Item.value('@Telefono1','VARCHAR(16)'),
+	T.Item.value('@Telefono2','VARCHAR(16)')
+FROM @xmlData.nodes('Datos/Personas/Persona') as T(Item)
 
-DELETE [dbo].[Usuario]
+
+DECLARE @TempUser TABLE
+	(Saldo money,
+	Fecha date,
+	TipoCuenta INT,
+	IdentidadCliente VARCHAR(32),  -- Valor DocumentoId del duenno de la cuenta
+	NumeroCuenta VARCHAR(32))
+
 INSERT INTO [dbo].[Usuario](
 	[Nombre],
 	[Contrasena],
+	[ValorDocumentoIdentidad],
 	[Administrador])
 SELECT 
 	T.Item.value('@User', 'VARCHAR(16)'),
 	T.Item.value('@Pass', 'VARCHAR(32)'),
+	T.Item.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'),
 	T.Item.value('@EsAdministrador', 'BIT')
-FROM @xmlData.nodes('Usuarios/Usuario') as T(Item)
+FROM @xmlData.nodes('Datos/Usuarios/Usuario') as T(Item)
 
 
 DECLARE @TempCuentas TABLE
@@ -48,7 +57,7 @@ DECLARE @TempCuentas TABLE
 	IdentidadCliente VARCHAR(32),  -- Valor DocumentoId del duenno de la cuenta
 	NumeroCuenta VARCHAR(32))
 
-DELETE @TempCuentas
+
 INSERT INTO @TempCuentas(
 	NumeroCuenta,
 	Saldo,
@@ -61,10 +70,9 @@ SELECT T.Item.value('@NumeroCuenta','VARCHAR(32)'),
 	T.Item.value('@FechaCreacion','DATE'),
 	T.Item.value('@ValorDocumentoIdentidadDelCliente','VARCHAR(32)'),
 	T.Item.value('@TipoCuentaId','INT')
-FROM @xmlData.nodes('Cuentas/Cuenta') as T(Item)
+FROM @xmlData.nodes('Datos/Cuentas/Cuenta') as T(Item)
 
 -- Mapeo @TempCuentas-CuentaAhorro
-DELETE [dbo].[CuentaAhorro]
 INSERT INTO [dbo].[CuentaAhorro](
 	[IdentificacionCliente], 
 	[NumeroCuenta], 
@@ -99,7 +107,7 @@ SELECT T.Item.value('@NumeroCuenta','VARCHAR(32)'),
 	T.Item.value('@ValorDocumentoIdentidadBeneficiario','VARCHAR(32)'),
 	T.Item.value('@ParentezcoId','INT'),
 	T.Item.value('@Porcentaje','INT')
-FROM @xmlData.nodes('Beneficiarios/Beneficiario') as T(Item)
+FROM @xmlData.nodes('Datos/Beneficiarios/Beneficiario') as T(Item)
 
 
 -- Mapeo @@TempBeneficiario-Beneficiario
@@ -130,7 +138,7 @@ INSERT INTO @TempUsuario(
 	)
 SELECT T.Item.value('@User','VARCHAR(16)'),
 	T.Item.value('@NumeroCuenta','VARCHAR(32)')
-FROM @xmlData.nodes('Usuarios_Ver/UsuarioPuedeVer') as T(Item)
+FROM @xmlData.nodes('Datos/Usuarios_Ver/UsuarioPuedeVer') as T(Item)
 
 -- Mapeo @TempUsuario-UsuarioPuedeVer
 INSERT INTO [dbo].[UsuarioPuedeVer](
