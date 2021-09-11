@@ -70,3 +70,12 @@ BEGIN
 		[FechaDesactivacion]=@CurrentTime
 	WHERE [ValorDocumentoIdentidadBeneficiario]=@Identificacion
 END;
+
+
+CREATE Procedure get_users_prueba
+AS
+BEGIN
+SELECT * FROM dbo.Usuario;
+END
+Go
+exec get_users_prueba

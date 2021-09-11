@@ -7,7 +7,7 @@ DECLARE @xmlData XML
 
 SET @xmlData = 
 		(SELECT *
-		FROM OPENROWSET(BULK 'C:\Archivos\DatosTarea-1.xml', SINGLE_BLOB) 
+		FROM OPENROWSET(BULK 'C:\Users\Usuario\Desktop\Banco\Scripts\DatosTarea.xml', SINGLE_BLOB) 
 		AS xmlData);
 
 

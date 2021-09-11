@@ -1,0 +1,32 @@
+{
+  "name": "asosiaservices",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mssql": "^5.1.0",
+    "path": "^0.12.7",
+    "ts-node-dev": "^1.0.0-pre.44"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.17.1",
+    "@types/express": "^4.17.2",
+    "@types/node": "^12.12.15",
+    "nodemon": "^2.0.1",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
+  },
+  "scripts": {
+    "ndm": "nodemon ./src/server.ts --proxy-config proxy.config.js --host=0.0.0.0 --disable-host-check",
+    "build": "tsc -p . --outDir dist",
+    "prestart:prod": "rm dist -r && mkdir dist && npm run build",
+    "start:prod": "node dist/server.js --proxy-config proxy.config.js"
+  },
+  "keywords": [],
+  "author": "Steven Blandón",
+  "license": "ISC"
+}

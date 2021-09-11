@@ -16,6 +16,11 @@ import { CuentasComponent } from './cuentas/cuentas.component';
 import {MaterialModule} from './material.module';
 import { SidebarModule } from './shared/components/sidebar/sidebar.module';
 import { HomeComponent } from './home/home.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+
+import { HttpClientModule } from '@angular/common/http';
+import {HttpClient } from '@angular/common/http';
+
 
 @NgModule({
   declarations: [
@@ -34,10 +39,11 @@ import { HomeComponent } from './home/home.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     MaterialModule,
-    SidebarModule
+    SidebarModule, 
+    HttpClientModule
    
   ],
-  providers: [],
+  providers: [HttpClient],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
