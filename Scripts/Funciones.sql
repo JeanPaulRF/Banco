@@ -151,14 +151,13 @@ BEGIN
 		SELECT 1
 	ELSE
 		SELECT 0
-*/
 
 	USE Banco
 	GO
 	SELECT * FROM Usuario
 END;
 GO
-
+*/
 
 CREATE PROCEDURE GetCliente(@Identificacion varchar(32))
 AS
@@ -172,6 +171,29 @@ CREATE PROCEDURE GetCuenta(@NumeroCuenta varchar(32))
 AS
 BEGIN
 	SELECT * FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta
+END;
+GO
+
+
+CREATE PROCEDURE GetTodosClientes
+AS
+BEGIN
+	SELECT * FROM [dbo].[Persona]
+END;
+GO
+
+
+CREATE PROCEDURE GetTodasCuentas
+AS
+BEGIN
+	SELECT * FROM [dbo].[CuentaAhorro]
+END;
+GO
+
+CREATE PROCEDURE GetTodosBeneficiarios
+AS
+BEGIN
+	SELECT * FROM [dbo].[Beneficiario]
 END;
 GO
 
