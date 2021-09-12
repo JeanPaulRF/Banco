@@ -90,6 +90,8 @@ BEGIN
 	FROM [dbo].[Persona] P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion;
 	
+	SELECT * FROM [dbo].[Beneficiario] WHERE [IdentificacionCliente]=@IdCliente
+/*
 	DECLARE @TempBeneficiario TABLE(
 		NumeroCuenta varchar(32),
 		Nombre varchar(64),
@@ -127,14 +129,56 @@ BEGIN
 		P.[Telefono1],
 		P.[Telefono2]
 	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
-
+*/
 END;
 GO	
 
-
-CREATE Procedure get_users_prueba
+/*
+CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
 AS
 BEGIN
-SELECT * FROM dbo.Usuario;
-END
-Go
+	DECLARE @Usuario varchar(16)
+	SET @Usuario = 'jaguero'
+	DECLARE @Pass varchar(32)
+	SET @Pass = 'LaFacil'
+
+	DECLARE @Name varchar(16)
+	SET @Name = (SELECT Nombre FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
+	DECLARE @Contra varchar(32)
+	SET @Contra = (SELECT Contrasena FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
+
+	IF @Name!=NULL
+		SELECT 1
+	ELSE
+		SELECT 0
+*/
+
+	USE Banco
+	GO
+	SELECT * FROM Usuario
+END;
+GO
+
+
+CREATE PROCEDURE GetCliente(@Identificacion varchar(32))
+AS
+BEGIN
+	SELECT * FROM [dbo].[Persona] WHERE [ValorDocumentoIdentidad]=@Identificacion
+END;
+GO
+
+
+CREATE PROCEDURE GetCuenta(@NumeroCuenta varchar(32))
+AS
+BEGIN
+	SELECT * FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta
+END;
+GO
+
+
+CREATE PROCEDURE get_users_prueba
+AS
+BEGIN
+	SELECT * FROM dbo.Usuario;
+END;
+GO
