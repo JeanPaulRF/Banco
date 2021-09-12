@@ -29,7 +29,7 @@ GO
 CREATE PROCEDURE dbo.EditarBeneficiario (
 	@IdentificacionAntigua varchar(32),
 	@Nombre varchar(64),
-	@Identificacion varchar(32), 
+	@Identificacion varchar(32),
 	@Parentesco int, 
 	@Porcentaje int,
 	@FechaNacimiento date,
@@ -77,7 +77,21 @@ BEGIN
 	SELECT @IdCliente = P.IdPersona
 	FROM [dbo].[Persona] P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+
 	SELECT COUNT(*) FROM [dbo].[Beneficiario] WHERE [IdentificacionCliente]=@IdCliente
+END;
+GO
+
+
+CREATE PROCEDURE GetTotalPorcentajes (@Identificacion varchar(32))
+AS
+BEGIN
+	DECLARE @IdCliente int;
+	SELECT @IdCliente = P.IdPersona
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+
+	SELECT SUM ([Porcentaje]) FROM [dbo].[Beneficiario] WHERE [IdentificacionCliente]=@IdCliente
 END;
 GO
 
@@ -133,31 +147,20 @@ BEGIN
 END;
 GO	
 
-/*
+
 CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
 AS
 BEGIN
-	DECLARE @Usuario varchar(16)
-	SET @Usuario = 'jaguero'
-	DECLARE @Pass varchar(32)
-	SET @Pass = 'LaFacil'
-
-	DECLARE @Name varchar(16)
-	SET @Name = (SELECT Nombre FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
-	DECLARE @Contra varchar(32)
-	SET @Contra = (SELECT Contrasena FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
-
-	IF @Name!=NULL
-		SELECT 1
+	IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
+		IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
+			SELECT 1
+		ELSE
+			SELECT 0
 	ELSE
 		SELECT 0
-
-	USE Banco
-	GO
-	SELECT * FROM Usuario
 END;
 GO
-*/
+
 
 CREATE PROCEDURE GetCliente(@Identificacion varchar(32))
 AS
