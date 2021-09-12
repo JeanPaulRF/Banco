@@ -1,10 +1,6 @@
 USE [Banco]
 GO
 
-DECLARE @CurrentTime DATETIME=GETDATE();
-GO
-
-
 CREATE PROCEDURE dbo.InsertarBeneficiario 
 (@NumeroCuenta int, @Identificacion varchar(32), @Parentesco int, @Porcentaje int)
 AS
@@ -70,6 +66,7 @@ BEGIN
 		[FechaDesactivacion]=@CurrentTime
 	WHERE [ValorDocumentoIdentidadBeneficiario]=@Identificacion
 END;
+<<<<<<< HEAD
 
 
 CREATE Procedure get_users_prueba
@@ -79,3 +76,69 @@ SELECT * FROM dbo.Usuario;
 END
 Go
 exec get_users_prueba
+=======
+GO
+
+
+
+CREATE PROCEDURE GetTotalBeneficiarios (@Identificacion varchar(32))
+AS
+BEGIN
+	DECLARE @IdCliente int;
+	SELECT @IdCliente = P.IdPersona
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+	SELECT COUNT(*) FROM [dbo].[Beneficiario] WHERE [IdentificacionCliente]=@IdCliente
+END;
+GO
+
+
+CREATE PROCEDURE GetBeneficiariosDeCliente (@Identificacion varchar(32))
+AS
+BEGIN
+	DECLARE @IdCliente int;
+	SELECT @IdCliente = P.IdPersona
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+	
+	DECLARE @TempBeneficiario TABLE(
+		NumeroCuenta varchar(32),
+		Nombre varchar(64),
+		Identificacion varchar(32), 
+		Parentesco int, 
+		Porcentaje int,
+		FechaNacimiento date,
+		Telefono1 int,
+		Telefono2 int
+	)
+
+	INSERT INTO @TempBeneficiario(
+		Identificacion,
+		NumeroCuenta,
+		Parentesco, 
+		Porcentaje
+	)
+	SELECT
+		B.ValorDocumentoIdentidadBeneficiario,
+		B.NumeroCuenta,
+		B.ValorParentesco,
+		B.Porcentaje
+	FROM [dbo].[Beneficiario] B
+	WHERE B.IdentificacionCliente=@IdCliente
+
+	--SELECT * FROM @TempBeneficiario
+	
+	SELECT
+		T.Identificacion,
+		T.NumeroCuenta,
+		T.Parentesco, 
+		T.Porcentaje,
+		P.[Nombre],
+		P.[FechaDeNacimiento],
+		P.[Telefono1],
+		P.[Telefono2]
+	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
+
+END;
+GO	
+>>>>>>> 7d1236f9ed889361353efd4f54ab3de5d93c7e82

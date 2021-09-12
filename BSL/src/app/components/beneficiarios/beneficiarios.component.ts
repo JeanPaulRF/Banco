@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { DataService } from '../data.service';
-import { users } from './users.module';
+import { DataService } from '../../data.service';
+import { users } from '../home/users.module';
+
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  selector: 'app-beneficiarios',
+  templateUrl: './beneficiarios.component.html',
+  styleUrls: ['./beneficiarios.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class BeneficiariosComponent implements OnInit {
 
   listUsers: users[] = [];
 

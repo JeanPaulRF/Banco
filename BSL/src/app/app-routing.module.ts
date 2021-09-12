@@ -1,14 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LogginComponent } from './loggin/loggin.component';
-import { ClientesComponent } from './clientes/clientes.component';
-import { CuentasComponent } from './cuentas/cuentas.component';
-import { HomeComponent} from './home/home.component';
+import { LoginComponent } from './components/login/login.component';
+import { ClientesComponent } from './components/clientes/clientes.component';
+import { CuentasComponent } from './components/cuentas/cuentas.component';
+import { HomeComponent} from './components/home/home.component';
+import { BeneficiariosComponent } from './components/beneficiarios/beneficiarios.component';
 
 const routes: Routes = [
   {
     path:'login',
-    component:LogginComponent
+    component:LoginComponent
   },
   {
     path:'clientes',
@@ -21,6 +22,10 @@ const routes: Routes = [
   {
     path:'home',
     component:HomeComponent
+  },
+  {
+    path:  'beneficiarios',
+    component:BeneficiariosComponent
   }
 
 
