@@ -130,3 +130,11 @@ BEGIN
 
 END;
 GO	
+
+
+CREATE Procedure get_users_prueba
+AS
+BEGIN
+SELECT * FROM dbo.Usuario;
+END
+Go
