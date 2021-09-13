@@ -4,7 +4,7 @@
 	<span class="move"></span>
 
 	<a routerLink="/beneficiarios" routerLinkActive="active">
-		<button mat-button>Beneficiarios </button>
+		<button mat-button (click)="LoadBenficiaries()">Beneficiarios </button>
 	</a>
 
 	<a routerLink="/cuentas" routerLinkActive="active">
@@ -33,7 +33,7 @@
 		</div>
 		<br style="height:100%">
 		<div class="divCenter">
-			<div *ngFor="let users of this.listUsers" class="divUsers">
+			<div *ngFor="let client_benefits of this.listaAllbenefs" class="divUsers">
 				<div class="divUsersTitle">
                  <button mat-mini-fab style="margin-left: auto; position: relative; 
                  z-index: 1; margin-top: auto;" class = tooltip-wrap>
@@ -55,8 +55,8 @@
 
 				</div>
 				<div class="divUsersInformation">
-					<h1>Nombre: {{ users.Nombre }}</h1>
-					<h1>V.ID: {{ users.ValorDocumentoIdentidad }}</h1>
+					<h1>Nombre: {{ client_benefits.NumeroCuenta }}</h1>
+					<h1>V.ID: {{ client_benefits.NumeroCuenta }}</h1>
 
 				</div>
 			</div>

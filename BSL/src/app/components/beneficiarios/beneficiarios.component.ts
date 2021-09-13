@@ -1,42 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { DataService } from '../../data.service';
-import { users } from '../home/users.module';
+import { client_benefits } from 'src/app/modules/client_benefts';
+import { EmiterService } from 'src/app/emiter.service';
+import { HomeComponent } from '../home/home.component';
+//import Swal from 'sweetalert2'
+
 
 @Component({
   selector: 'app-beneficiarios',
   templateUrl: './beneficiarios.component.html',
   styleUrls: ['./beneficiarios.component.scss']
 })
-export class BeneficiariosComponent implements OnInit {
+export class BeneficiariosComponent extends HomeComponent {
 
-  listUsers: users[] = [];
+  // listBenets: client_benefits[] = [];
 
+  // constructor(private dataService: DataService,private EmiterService:EmiterService) { }
 
-  constructor(private dataService: DataService) { }
-
-  ngOnInit(): void {
-    // this.get_users_prueba();
-
-      this.fetchElementos();
-  }
-
-  /**
- * @method get that show all Encuestados
- */
-//  get_users_prueba(){
-//   this.dataService.get_users_prueba().toPromise().then((res:any)=>{
-//   this.listUsers= res;
-//   }, (error)=>{
-//   alert(error.message);
-//   })
-//   }
-
-  fetchElementos(){
-    this.dataService.get_users_prueba()
-    .subscribe(clientes => {
-      this.listUsers = clientes;
-    })
-  }
-
+  // ngOnInit(): void {
+  //   this.EmiterService.envioBeneficiarios.subscribe(data => {
+  //     this.listBenets.push(data);
+  //   })
+  //   console.log(this.listBenets);
+  // }
 
 }
+
+

@@ -13,9 +13,9 @@ class BancoRouter {
    * @param req 
    * @param res 
    */
-  async get_users_prueba(req: Request, res: Response){
+  async get_beneficiaries(req: Request, res: Response){
     new mssql.ConnectionPool(config).connect().then((pool:any) => {  //Connect to database
-      return pool.request().execute('get_users_prueba')              // Execute the SP into database
+      return pool.request().execute('GetTodosBeneficiarios')              // Execute the SP into database
       }).then((result: { recordset: any; }) => {
         let rows = result.recordset
         res.setHeader('Access-Control-Allow-Origin', '*')
@@ -26,13 +26,38 @@ class BancoRouter {
         mssql.close();
       });
   }
-  //routes that consult in the FrontEnd
-  routes() { 
-    this.router.get("/", this.get_users_prueba);     
+ 
+
+
+  async get_beneficiaries_by_cliente(req: Request, res: Response){
+    let { Identificacion } = req.params; 
+    new mssql.ConnectionPool(config).connect().then((pool:any) => {
+      return pool.request()
+      .input('Identificacion', mssql.VARCHAR(32), Identificacion)
+      .execute('GetBeneficiariosDeCliente')
+      }).then((result: { recordset: any; }) => {
+        let rows = result.recordset; 
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.status(200).json(rows);
+        mssql.close();
+      }).catch((err: any) => {
+        res.status(500).send({ message: `${err}`})
+        mssql.close();
+      });
   }
+
+
+   //routes that consult in the FrontEnd
+   routes() { 
+    this.router.get("/beneficiarios", this.get_beneficiaries);  
+    this.router.get("/beneficiarios/:Identificacion", this.get_beneficiaries_by_cliente); 
+  //  this.router.get("/beneficiarios/:idAuditoria", this.get_ModsAuditorias);
+  }
+
 }
 
 const bancoRouter = new BancoRouter();
 bancoRouter.routes();
 
 export default bancoRouter.router;
+

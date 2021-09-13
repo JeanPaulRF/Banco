@@ -1,12 +1,10 @@
-
 <mat-toolbar color="primary">
 	<a>BSL</a>
 	<span class="move"></span>
 
 	<a routerLink="/beneficiarios" routerLinkActive="active">
-		<button mat-button>Beneficiarios </button>
+		<button mat-button >Beneficiarios </button>
 	</a>
-
 	<a routerLink="/cuentas" routerLinkActive="active">
 		<button mat-button>Cuentas</button>
 	</a>
@@ -17,7 +15,6 @@
 		<button mat-button>LogOut</button>
 	</a>
 </mat-toolbar>
-
 
 <!-- <div style="width:70%; height:100%;background: rgb(219, 219, 219);display:flex;align-items:center"> -->
 	<div class="mainDiv">
@@ -33,7 +30,7 @@
 		</div>
 		<br style="height:100%">
 		<div class="divCenter">
-			<div *ngFor="let users of this.listUsers" class="divUsers">
+			<div *ngFor="let client_benefits of this.listBeneficiario" class="divUsers">
 				<div class="divUsersTitle">
                  <button mat-mini-fab style="margin-left: auto; position: relative; 
                  z-index: 1; margin-top: auto;" class = tooltip-wrap>
@@ -49,15 +46,12 @@
                             <p>Eliminar</p>
                         </div> 
                     </button>
-
-
 					<!-- <h1 style="margin-top: 0;text-align:center"> {{ users.Nombre }}</h1> -->
-
 				</div>
 				<div class="divUsersInformation">
-					<h1>Nombre: {{ users.Nombre }}</h1>
-					<h1>V.ID: {{ users.ValorDocumentoIdentidad }}</h1>
-
+					<h1>Valor Parentesco: {{ client_benefits.ValorParentesco }}</h1>
+                    <h1>Porcentaje Otorgado: {{ client_benefits.Porcentaje }}</h1>
+                    <h1>Identificación: {{ client_benefits.ValorDocumentoIdentidadBeneficiario }}</h1>
 				</div>
 			</div>
 		</div>
