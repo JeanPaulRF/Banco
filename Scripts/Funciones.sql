@@ -175,11 +175,31 @@ BEGIN
 END;
 GO
 
+CREATE PROCEDURE GetCuentasDeCliente(@Identificacion varchar(32))
+AS
+BEGIN
+	DECLARE @IdCliente int;
+	SELECT @IdCliente = P.IdPersona
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+	
+	SELECT * FROM [dbo].[CuentaAhorro] WHERE [IdentificacionCliente]=@IdCliente
+END;
+GO
+
 
 CREATE PROCEDURE GetTodosClientes
 AS
 BEGIN
 	SELECT * FROM [dbo].[Persona]
+END;
+GO
+
+
+CREATE PROCEDURE GetTodosParentescos
+AS
+BEGIN
+	SELECT * FROM [dbo].[Parentesco]
 END;
 GO
 
