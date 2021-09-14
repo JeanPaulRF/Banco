@@ -145,17 +145,23 @@ BEGIN
 END;
 GO	
 
+--DROP PROCEDURE ValidarUsuarioContrasena;
+--GO
 
 CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
 AS
 BEGIN
+	DECLARE @Tabla TABLE (Resultado int)
+
 	IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
 		IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
-			SELECT 1
+			INSERT INTO @Tabla(Resultado) SELECT 1
 		ELSE
-			SELECT 0
+			INSERT INTO @Tabla(Resultado) SELECT 0
 	ELSE
-		SELECT 0
+		INSERT INTO @Tabla(Resultado) SELECT 0
+	
+	SELECT * FROM @Tabla
 END;
 GO
 
