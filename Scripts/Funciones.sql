@@ -1,10 +1,40 @@
 USE [Banco]
 GO
 
-CREATE PROCEDURE dbo.InsertarBeneficiario 
-(@NumeroCuenta int, @Identificacion varchar(32), @Parentesco int, @Porcentaje int)
+--DROP PROCEDURE InsertarBeneficiario
+--GO
+
+CREATE PROCEDURE InsertarBeneficiario (
+	@Nombre varchar(64),
+	@NumeroCuenta varchar(32),
+	@TipoIdentificacion int,
+	@Identificacion varchar(32),
+	@Parentesco int, 
+	@Porcentaje int,
+	@FechaNacimiento date,
+	@Email varchar(32),
+	@Telefono1 int,
+	@Telefono2 int
+	)
 AS
 BEGIN
+	INSERT INTO [dbo].[Persona](
+		[Nombre],
+		[ValorDocumentoIdentidad],
+		[TipoIdentidad],
+		[FechaDeNacimiento],
+		[Email],
+		[Telefono1],
+		[Telefono2])
+	VALUES (
+		@Nombre,
+		@Identificacion,
+		@TipoIdentificacion,
+		@FechaNacimiento,
+		@Email,
+		@Telefono1,
+		@Telefono2)
+
 	-- Mapeo @@TempBeneficiario-Beneficiario
 	INSERT INTO [dbo].[Beneficiario](
 		[IdentificacionCliente], 
@@ -25,14 +55,17 @@ BEGIN
 END;
 GO
 
+--DROP PROCEDURE EditarBeneficiario
+--GO
 
-CREATE PROCEDURE dbo.EditarBeneficiario (
+CREATE PROCEDURE EditarBeneficiario (
 	@IdentificacionAntigua varchar(32),
 	@Nombre varchar(64),
 	@Identificacion varchar(32),
 	@Parentesco int, 
 	@Porcentaje int,
 	@FechaNacimiento date,
+	@Email varchar(32),
 	@Telefono1 int,
 	@Telefono2 int
 	)
@@ -48,6 +81,7 @@ BEGIN
 	SET [Nombre]=@Nombre,
 		[ValorDocumentoIdentidad]=@Identificacion,
 		[FechaDeNacimiento]=@FechaNacimiento,
+		[Email]=@Email,
 		[Telefono1]=@Telefono1,
 		[Telefono2]=@Telefono2
 	WHERE [ValorDocumentoIdentidad]=@IdentificacionAntigua
