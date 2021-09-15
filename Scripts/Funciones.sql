@@ -129,17 +129,18 @@ BEGIN
 END;
 GO
 
+--DROP PROCEDURE GetBeneficiariosDeCliente
+--GO
 
 CREATE PROCEDURE GetBeneficiariosDeCliente (@Identificacion varchar(32))
 AS
 BEGIN
+
 	DECLARE @IdCliente int;
 	SELECT @IdCliente = P.IdPersona
 	FROM [dbo].[Persona] P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion;
-	
-	SELECT * FROM [dbo].[Beneficiario] WHERE [IdentificacionCliente]=@IdCliente
-/*
+
 	DECLARE @TempBeneficiario TABLE(
 		NumeroCuenta varchar(32),
 		Nombre varchar(64),
@@ -147,6 +148,7 @@ BEGIN
 		Parentesco int, 
 		Porcentaje int,
 		FechaNacimiento date,
+		Email varchar(32),
 		Telefono1 int,
 		Telefono2 int
 	)
@@ -163,7 +165,6 @@ BEGIN
 		B.Porcentaje
 	FROM [dbo].[Beneficiario] B
 	WHERE B.IdentificacionCliente=@IdCliente
-	--SELECT * FROM @TempBeneficiario
 	
 	SELECT
 		T.Identificacion,
@@ -172,10 +173,10 @@ BEGIN
 		T.Porcentaje,
 		P.[Nombre],
 		P.[FechaDeNacimiento],
+		P.[Email],
 		P.[Telefono1],
 		P.[Telefono2]
 	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
-*/
 END;
 GO	
 
