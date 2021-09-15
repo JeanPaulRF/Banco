@@ -200,6 +200,13 @@ BEGIN
 END;
 GO
 
+CREATE PROCEDURE GetUsuariosPuedeVer(@Usuario varchar(16))
+AS
+BEGIN
+	SELECT [NumeroCuenta] FROM [dbo].[UsuarioPuedeVer]
+END;
+GO
+
 
 CREATE PROCEDURE GetCliente(@Identificacion varchar(32))
 AS
@@ -255,7 +262,41 @@ GO
 CREATE PROCEDURE GetTodosBeneficiarios
 AS
 BEGIN
-	SELECT * FROM [dbo].[Beneficiario]
+	DECLARE @TempBeneficiario TABLE(
+		NumeroCuenta varchar(32),
+		Nombre varchar(64),
+		Identificacion varchar(32), 
+		Parentesco int, 
+		Porcentaje int,
+		FechaNacimiento date,
+		Email varchar(32),
+		Telefono1 int,
+		Telefono2 int
+	)
+	INSERT INTO @TempBeneficiario(
+		Identificacion,
+		NumeroCuenta,
+		Parentesco, 
+		Porcentaje
+	)
+	SELECT
+		B.ValorDocumentoIdentidadBeneficiario,
+		B.NumeroCuenta,
+		B.ValorParentesco,
+		B.Porcentaje
+	FROM [dbo].[Beneficiario] B
+	
+	SELECT
+		T.Identificacion,
+		T.NumeroCuenta,
+		T.Parentesco, 
+		T.Porcentaje,
+		P.[Nombre],
+		P.[FechaDeNacimiento],
+		P.[Email],
+		P.[Telefono1],
+		P.[Telefono2]
+	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
 END;
 GO
 
