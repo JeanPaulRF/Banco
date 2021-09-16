@@ -1,8 +1,7 @@
 USE [Banco]
 GO
 
---DROP PROCEDURE InsertarBeneficiario
---GO
+--FUNCIONES BASICAS DE BENEFICIARIO
 
 CREATE PROCEDURE InsertarBeneficiario (
 	@Nombre varchar(64),
@@ -55,8 +54,6 @@ BEGIN
 END;
 GO
 
---DROP PROCEDURE EditarBeneficiario
---GO
 
 CREATE PROCEDURE EditarBeneficiario (
 	@IdentificacionAntigua varchar(32),
@@ -102,7 +99,7 @@ BEGIN
 END;
 GO
 
-
+-- TOTALES
 
 CREATE PROCEDURE GetTotalBeneficiarios (@Identificacion varchar(32))
 AS
@@ -129,8 +126,7 @@ BEGIN
 END;
 GO
 
---DROP PROCEDURE GetBeneficiariosDeCliente
---GO
+--CONSULTAS ESPECIFICAS
 
 CREATE PROCEDURE GetBeneficiariosDeCliente (@Identificacion varchar(32))
 AS
@@ -180,26 +176,6 @@ BEGIN
 END;
 GO	
 
---DROP PROCEDURE ValidarUsuarioContrasena;
---GO
-
-CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
-AS
-BEGIN
-	DECLARE @Tabla TABLE (Resultado int)
-
-	IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
-		IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
-			INSERT INTO @Tabla(Resultado) SELECT 1
-		ELSE
-			INSERT INTO @Tabla(Resultado) SELECT 0
-	ELSE
-		INSERT INTO @Tabla(Resultado) SELECT 0
-	
-	SELECT * FROM @Tabla
-END;
-GO
-
 CREATE PROCEDURE GetUsuariosPuedeVer(@Usuario varchar(16))
 AS
 BEGIN
@@ -219,9 +195,63 @@ GO
 CREATE PROCEDURE GetCuenta(@NumeroCuenta varchar(32))
 AS
 BEGIN
+	/*USE Banco
+	GO
+	DECLARE @NumeroCuenta varchar(32)
+	SET @NumeroCuenta='11090371'*/
+	
 	SELECT * FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta
 END;
 GO
+
+
+CREATE PROCEDURE GetBeneficiario(@Identificacion varchar(32))
+AS
+BEGIN
+	/*USE Banco
+	GO
+	DECLARE @Identificacion varchar(32)
+	SET @Identificacion='117359964'*/
+
+	DECLARE @TempBeneficiario TABLE(
+		NumeroCuenta varchar(32),
+		Nombre varchar(64),
+		Identificacion varchar(32), 
+		Parentesco int, 
+		Porcentaje int,
+		FechaNacimiento date,
+		Email varchar(32),
+		Telefono1 int,
+		Telefono2 int
+	)
+	INSERT INTO @TempBeneficiario(
+		Identificacion,
+		NumeroCuenta,
+		Parentesco, 
+		Porcentaje
+	)
+	SELECT
+		@Identificacion,
+		B.NumeroCuenta,
+		B.ValorParentesco,
+		B.Porcentaje
+	FROM [dbo].[Beneficiario] B
+	WHERE B.ValorDocumentoIdentidadBeneficiario=@Identificacion
+	
+	SELECT
+		T.Identificacion,
+		T.NumeroCuenta,
+		T.Parentesco, 
+		T.Porcentaje,
+		P.[Nombre],
+		P.[FechaDeNacimiento],
+		P.[Email],
+		P.[Telefono1],
+		P.[Telefono2]
+	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
+END;
+GO	
+
 
 CREATE PROCEDURE GetCuentasDeCliente(@Identificacion varchar(32))
 AS
@@ -235,6 +265,26 @@ BEGIN
 END;
 GO
 
+--VALIDACION
+
+CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
+AS
+BEGIN
+	DECLARE @Tabla TABLE (Resultado int)
+
+	IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
+		IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
+			INSERT INTO @Tabla(Resultado) SELECT 1
+		ELSE
+			INSERT INTO @Tabla(Resultado) SELECT 0
+	ELSE
+		INSERT INTO @Tabla(Resultado) SELECT 0
+	
+	SELECT * FROM @Tabla
+END;
+GO
+
+--PARA ADMIN
 
 CREATE PROCEDURE GetTodosClientes
 AS
@@ -300,6 +350,7 @@ BEGIN
 END;
 GO
 
+--PRUEBA
 
 CREATE PROCEDURE get_users_prueba
 AS
