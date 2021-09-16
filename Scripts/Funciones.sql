@@ -146,19 +146,22 @@ BEGIN
 		FechaNacimiento date,
 		Email varchar(32),
 		Telefono1 int,
-		Telefono2 int
+		Telefono2 int,
+		Activo bit
 	)
 	INSERT INTO @TempBeneficiario(
 		Identificacion,
 		NumeroCuenta,
 		Parentesco, 
-		Porcentaje
+		Porcentaje,
+		Activo
 	)
 	SELECT
 		B.ValorDocumentoIdentidadBeneficiario,
 		B.NumeroCuenta,
 		B.ValorParentesco,
-		B.Porcentaje
+		B.Porcentaje,
+		B.Activo
 	FROM [dbo].[Beneficiario] B
 	WHERE B.IdentificacionCliente=@IdCliente
 	
@@ -171,7 +174,8 @@ BEGIN
 		P.[FechaDeNacimiento],
 		P.[Email],
 		P.[Telefono1],
-		P.[Telefono2]
+		P.[Telefono2],
+		T.Activo
 	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
 END;
 GO	
@@ -205,7 +209,7 @@ END;
 GO
 
 
-CREATE PROCEDURE GetBeneficiario(@Identificacion varchar(32))
+CREATE PROCEDURE GetBeneficiario (@Identificacion varchar(32))
 AS
 BEGIN
 	/*USE Banco
@@ -222,19 +226,22 @@ BEGIN
 		FechaNacimiento date,
 		Email varchar(32),
 		Telefono1 int,
-		Telefono2 int
+		Telefono2 int,
+		Activo bit
 	)
 	INSERT INTO @TempBeneficiario(
 		Identificacion,
 		NumeroCuenta,
 		Parentesco, 
-		Porcentaje
+		Porcentaje,
+		Activo
 	)
 	SELECT
 		@Identificacion,
 		B.NumeroCuenta,
 		B.ValorParentesco,
-		B.Porcentaje
+		B.Porcentaje,
+		B.Activo
 	FROM [dbo].[Beneficiario] B
 	WHERE B.ValorDocumentoIdentidadBeneficiario=@Identificacion
 	
@@ -247,7 +254,8 @@ BEGIN
 		P.[FechaDeNacimiento],
 		P.[Email],
 		P.[Telefono1],
-		P.[Telefono2]
+		P.[Telefono2],
+		T.Activo
 	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
 END;
 GO	
@@ -321,19 +329,22 @@ BEGIN
 		FechaNacimiento date,
 		Email varchar(32),
 		Telefono1 int,
-		Telefono2 int
+		Telefono2 int,
+		Activo bit
 	)
 	INSERT INTO @TempBeneficiario(
 		Identificacion,
 		NumeroCuenta,
 		Parentesco, 
-		Porcentaje
+		Porcentaje,
+		Activo
 	)
 	SELECT
 		B.ValorDocumentoIdentidadBeneficiario,
 		B.NumeroCuenta,
 		B.ValorParentesco,
-		B.Porcentaje
+		B.Porcentaje,
+		B.Activo
 	FROM [dbo].[Beneficiario] B
 	
 	SELECT
@@ -345,7 +356,8 @@ BEGIN
 		P.[FechaDeNacimiento],
 		P.[Email],
 		P.[Telefono1],
-		P.[Telefono2]
+		P.[Telefono2],
+		T.Activo
 	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
 END;
 GO
