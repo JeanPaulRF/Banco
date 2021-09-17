@@ -180,6 +180,64 @@ BEGIN
 END;
 GO	
 
+
+CREATE PROCEDURE GetBeneficiariosActivosDeCliente (@Identificacion varchar(32))
+AS
+BEGIN
+	/*USE Banco
+	GO
+	DECLARE @Identificacion varchar(32)
+	SET @Identificacion='117359964'*/
+
+	DECLARE @IdCliente int;
+	SELECT @IdCliente = P.IdPersona
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+
+	DECLARE @TempBeneficiario TABLE(
+		NumeroCuenta varchar(32),
+		Nombre varchar(64),
+		Identificacion varchar(32), 
+		Parentesco int, 
+		Porcentaje int,
+		FechaNacimiento date,
+		Email varchar(32),
+		Telefono1 int,
+		Telefono2 int,
+		Activo bit
+	)
+	INSERT INTO @TempBeneficiario(
+		Identificacion,
+		NumeroCuenta,
+		Parentesco, 
+		Porcentaje,
+		Activo
+	)
+	SELECT
+		B.ValorDocumentoIdentidadBeneficiario,
+		B.NumeroCuenta,
+		B.ValorParentesco,
+		B.Porcentaje,
+		B.Activo
+	FROM [dbo].[Beneficiario] B
+	WHERE B.IdentificacionCliente=@IdCliente AND Activo=1
+	
+	SELECT
+		T.Identificacion,
+		T.NumeroCuenta,
+		T.Parentesco, 
+		T.Porcentaje,
+		P.[Nombre],
+		P.[FechaDeNacimiento],
+		P.[Email],
+		P.[Telefono1],
+		P.[Telefono2],
+		T.Activo
+	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
+END;
+GO	
+
+
 CREATE PROCEDURE GetUsuariosPuedeVer(@Usuario varchar(16))
 AS
 BEGIN
