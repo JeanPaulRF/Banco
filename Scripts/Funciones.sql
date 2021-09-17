@@ -2,7 +2,7 @@ USE [Banco]
 GO
 
 --FUNCIONES BASICAS DE BENEFICIARIO
-
+/*
 CREATE PROCEDURE InsertarBeneficiario (
 	@Nombre varchar(64),
 	@NumeroCuenta varchar(32),
@@ -33,6 +33,60 @@ BEGIN
 		@Email,
 		@Telefono1,
 		@Telefono2)
+
+	-- Mapeo @@TempBeneficiario-Beneficiario
+	INSERT INTO [dbo].[Beneficiario](
+		[IdentificacionCliente], 
+		[IdentificacionCuenta], 
+		[NumeroCuenta], 
+		[Porcentaje],
+		[ValorDocumentoIdentidadBeneficiario],
+		[ValorParentesco]
+		)
+	SELECT C.IdentificacionCliente,
+		C.IdCuentaAhorro,
+		C.NumeroCuenta,
+		@Porcentaje,
+		@Identificacion,
+		@Parentesco
+	FROM [dbo].[CuentaAhorro] C
+	WHERE @NumeroCuenta=C.NumeroCuenta
+END;
+GO
+*/
+
+CREATE PROCEDURE InsertarBeneficiario (
+	@NumeroCuenta varchar(32), 
+	@Identificacion varchar(32),
+	@Porcentaje int,
+	@Parentesco int)
+AS
+BEGIN
+
+--INSERTA PERSONAS NO ENCONTRADAS
+	INSERT [dbo].[Persona] (
+	[Nombre],
+	[TipoIdentidad],
+	[ValorDocumentoIdentidad],
+	[Email],
+	[FechaDeNacimiento],
+	[Telefono1],
+	[Telefono2]
+	)
+SELECT 
+	'No conocido',					
+	1,								
+	@Identificacion,		
+	'na@na.com',					
+	'1900-01-01',					
+	'00000000',					
+	'00000000'					
+FROM [dbo].[Beneficiario] B
+WHERE NOT EXISTS (
+	SELECT 1 
+	FROM [dbo].[Persona] P
+	WHERE (P.ValorDocumentoIdentidad=@Identificacion)
+	)
 
 	-- Mapeo @@TempBeneficiario-Beneficiario
 	INSERT INTO [dbo].[Beneficiario](
