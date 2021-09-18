@@ -3,11 +3,11 @@ GO
 
 DECLARE @xmlData XML
 
-DECLARE @CurrentTime DATETIME=GETDATE();
+DECLARE @CurrentTime DATE=GETDATE();
 
 SET @xmlData = 
 		(SELECT *
-		FROM OPENROWSET(BULK 'C:\Users\Usuario\Desktop\Banco\Scripts\DatosTarea-1.xml', SINGLE_BLOB) 
+		FROM OPENROWSET(BULK 'C:\Users\Usuario\Desktop\Banco\Scripts\DatosTarea.xml', SINGLE_BLOB)
 		AS xmlData);
 
 
@@ -23,7 +23,7 @@ SELECT
 	T.Item.value('@TipoDocuIdentidad','INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)'),
 	T.Item.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'),
-	T.Item.value('@FechaNacimiento','DATE'),
+	T.Item.value('@FechaNacimiento','VARCHAR(32)'),
 	T.Item.value('@Email','VARCHAR(64)'),
 	T.Item.value('@Telefono1','VARCHAR(16)'),
 	T.Item.value('@Telefono2','VARCHAR(16)')
@@ -37,13 +37,14 @@ DECLARE @TempUser TABLE
 	IdentidadCliente VARCHAR(32),  -- Valor DocumentoId del duenno de la cuenta
 	NumeroCuenta VARCHAR(32))
 
+
 INSERT INTO [dbo].[Usuario](
 	[Nombre],
 	[Contrasena],
 	[ValorDocumentoIdentidad],
 	[Administrador])
 SELECT 
-	T.Item.value('@User', 'VARCHAR(16)'),
+	T.Item.value('@Usuario', 'VARCHAR(16)'),
 	T.Item.value('@Pass', 'VARCHAR(32)'),
 	T.Item.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'),
 	T.Item.value('@EsAdministrador', 'BIT')
@@ -67,7 +68,7 @@ INSERT INTO @TempCuentas(
 	)
 SELECT T.Item.value('@NumeroCuenta','VARCHAR(32)'),
 	T.Item.value('@Saldo','MONEY'),
-	T.Item.value('@FechaCreacion','DATE'),
+	T.Item.value('@FechaCreacion','VARCHAR(32)'),
 	T.Item.value('@ValorDocumentoIdentidadDelCliente','VARCHAR(32)'),
 	T.Item.value('@TipoCuentaId','INT')
 FROM @xmlData.nodes('Datos/Cuentas/Cuenta') as T(Item)
@@ -136,7 +137,7 @@ INSERT INTO @TempUsuario(
 	Usuario,
 	NumeroCuenta
 	)
-SELECT T.Item.value('@User','VARCHAR(16)'),
+SELECT T.Item.value('@Usuario','VARCHAR(16)'),
 	T.Item.value('@NumeroCuenta','VARCHAR(32)')
 FROM @xmlData.nodes('Datos/Usuarios_Ver/UsuarioPuedeVer') as T(Item)
 

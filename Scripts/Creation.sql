@@ -50,7 +50,7 @@ CREATE TABLE dbo.Persona(
 	Nombre varchar(64) not null,
 	ValorDocumentoIdentidad varchar(32) not null,
 	TipoIdentidad int not null,
-	FechaDeNacimiento date not null,
+	FechaDeNacimiento varchar(32) not null,
 	Email varchar(32) not null,
 	Telefono1 int not null,
 	Telefono2 int not null,
@@ -63,7 +63,7 @@ CREATE TABLE dbo.CuentaAhorro(
 	IdentificacionCliente int not null,
 	NumeroCuenta varchar(32) not null,   
 	Saldo money not null,
-	FechaConstitucion date not null,
+	FechaConstitucion varchar(32) not null,
 	ValorDocumentoIdentidadCliente varchar(32) not null,
 	TipoCuenta int not null,
 	
@@ -79,7 +79,7 @@ CREATE TABLE dbo.Beneficiario(
 	ValorDocumentoIdentidadBeneficiario varchar(32) not null,
 	ValorParentesco int not null,
 	Activo bit DEFAULT (1),
-	FechaDesactivacion date,
+	FechaDesactivacion varchar(32),
 
 	CONSTRAINT pk_Beneficiario PRIMARY KEY (IdBeneficiario)
 );
