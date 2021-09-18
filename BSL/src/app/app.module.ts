@@ -18,7 +18,8 @@ import { HttpClientModule } from '@angular/common/http';
 import {HttpClient } from '@angular/common/http';
 import { LoginComponent } from './components/login/login.component';
 import { BeneficiariosComponent } from './components/beneficiarios/beneficiarios.component';
-
+import { AddBeneficiarieComponent } from 'src/app/components/formsComponents/add-beneficiarie/add-beneficiarie.component';
+import { ModifyBenefComponent } from './components/formsComponents/modify-benef/modify-benef.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,9 @@ import { BeneficiariosComponent } from './components/beneficiarios/beneficiarios
     CuentasComponent,
     HomeComponent,
     LoginComponent,
-    BeneficiariosComponent
+    BeneficiariosComponent,
+    AddBeneficiarieComponent,
+    ModifyBenefComponent
   ],
   imports: [
     BrowserModule,

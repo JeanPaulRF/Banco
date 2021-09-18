@@ -1,0 +1,66 @@
+
+<div  [formGroup]="registerForm">
+<mat-card class="shipping-card">
+    <mat-card-header>
+      <mat-card-title>Agregar Beneficario</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+    <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Identificación</mat-label>
+            <input matInput id="Identificación" placeholder="0-000-0000" formControlName="identificacion">
+          </mat-form-field>
+        </div>
+   
+
+        <div class="col">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Cuenta</mat-label>
+            <mat-select [(value)]=account>
+              <mat-option *ngFor="let cuenta of this.listCuentas" [value]="cuenta.NumeroCuenta">
+                {{cuenta.NumeroCuenta}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+      </div>
+    </div>
+       <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Porcentaje</mat-label>
+            <input type="number" max="100" min="5" matInput formControlName="porcent" placeholder="0-000-0000">
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Parentesco</mat-label>
+            <mat-select [(value)]=parent>
+              <mat-option value=1>Padre</mat-option>
+              <mat-option value=2>Madre</mat-option>
+              <mat-option value=3>Hijo</mat-option>
+              <mat-option value=4>Hija</mat-option>
+              <mat-option value=5>Hermano</mat-option>
+              <mat-option value=6>Hermana</mat-option>
+              <mat-option value=7>Amigo</mat-option>
+              <mat-option value=8>Amiga</mat-option>
+              <!-- <mat-option *ngFor="let state of states" [value]="state">{{state}}</mat-option> -->
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+    
+
+
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" type="submit"
+        (click)="this.validacionBotton()">
+        Agregar Beneficiario
+    </button>
+    </mat-card-actions>
+  </mat-card>
+
+</div>

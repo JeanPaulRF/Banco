@@ -1,10 +1,11 @@
-import { Injectable,EventEmitter,Output } from '@angular/core';
+import { Injectable,Output,EventEmitter } from '@angular/core';
 
 @Injectable({
-    providedIn: 'root'
-  })
+  providedIn: 'root'
+})
+export class EmiterService {
 
-  export class EmiterService{
-     @Output() envioBeneficiarios:EventEmitter<any> = new EventEmitter();
-      constructor(){}
-  }
+  constructor() { }
+
+  @Output() log_Home_Conexion: EventEmitter<any>= new EventEmitter();
+}

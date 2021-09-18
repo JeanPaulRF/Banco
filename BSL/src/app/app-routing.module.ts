@@ -5,8 +5,16 @@ import { ClientesComponent } from './components/clientes/clientes.component';
 import { CuentasComponent } from './components/cuentas/cuentas.component';
 import { HomeComponent} from './components/home/home.component';
 import { BeneficiariosComponent } from './components/beneficiarios/beneficiarios.component';
-
+import { AddBeneficiarieComponent} from 'src/app/components/formsComponents/add-beneficiarie/add-beneficiarie.component';
+import { ModifyBenefComponent } from './components/formsComponents/modify-benef/modify-benef.component';
 const routes: Routes = [
+
+  {
+ 
+    path: '',
+    
+    component:LoginComponent
+  },
   {
     path:'login',
     component:LoginComponent
@@ -16,7 +24,7 @@ const routes: Routes = [
     component:ClientesComponent
   },
   {
-    path:'cuentas',
+    path:'cuentas/:id',
     component:CuentasComponent
   },
   {
@@ -24,9 +32,22 @@ const routes: Routes = [
     component:HomeComponent
   },
   {
-    path:  'beneficiarios',
+    path:'home/:id',
+    component:HomeComponent
+  },
+  {
+    path:  'beneficiarios/:id',
     component:BeneficiariosComponent
+  },
+  {
+    path: 'add_benef/:id',
+    component: AddBeneficiarieComponent
+  },
+  {
+    path: 'modify%benef/:id',
+    component: ModifyBenefComponent
   }
+  
 
 
   // { path: 'admin', loadChildren: () => import('./pages/admin/admin.module').then(m => m.AdminModule) },

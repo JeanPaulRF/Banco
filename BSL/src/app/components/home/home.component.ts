@@ -1,10 +1,9 @@
 import { Component, OnInit} from '@angular/core';
 import { DataService } from '../../data.service';
-import { users } from './users.module';
-import { client_benefits } from 'src/app/modules/client_benefts';
+import { usuario } from 'src/app/modules/usuario';
+import { beneficiarios } from 'src/app/modules/beneficiarios';
 import { EmiterService } from 'src/app/emiter.service';
-import { allBenefs } from '../allBenefs';
-
+import { Router, ActivatedRoute} from '@angular/router';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -14,39 +13,55 @@ import { allBenefs } from '../allBenefs';
 
 export class HomeComponent implements OnInit {
 
-  listUsers: users[] = [];
+  listUser:usuario[] = [];
+  ID:any;
 
-  listBeneficiario: client_benefits[] = [];
-  listaAllbenefs: allBenefs[] = []; 
-  ID:string = '117370445';
-  constructor(private dataService: DataService, private EmiterService:EmiterService) { }
+  nombre:any;
+  Identificacion:any;
 
-  ngOnInit() {
-    this.fetchElementos();
-    this.LoadBenficiaries();
+
+
+  constructor(public dataService: DataService, private EmiterService:EmiterService, private router:Router, 
+  private route: ActivatedRoute){}
+  
+
+  
+  ngOnInit(){
+    this.ID=this.route.snapshot.paramMap.get('id');
+    this.get_user();
   }
 
- 
-
-  fetchElementos(){
-    this.dataService.get_beneficiaries()
-    .subscribe(benefs => {
-      this.listaAllbenefs = benefs;
-      console.log(this.listaAllbenefs);
+  
+  get_user(){
+    this.dataService.get_user(this.ID).subscribe(user=>{
+      console.log(user);
+      this.listUser = user;
+      this.nombre = this.listUser[0].Nombre;
+      this.Identificacion = this.listUser[0].ValorDocumentoIdentidad;
     })
   }
 
-  async LoadBenficiaries(){ 
-    this.dataService.get_beneficiaries_by_cliente(this.ID).
-    subscribe(clientes => {
-      this.listBeneficiario = clientes;
-      console.log(this.listBeneficiario);
-      
-  }) 
+  // fetchElementos(){
+  //   this.dataService.get_beneficiaries()
+  //   .subscribe(benefs => {
+  //     this.listaAllbenefs = benefs;
+  //     console.log(this.listaAllbenefs);
+  //   })
+  // }
 
-  this.EmiterService.envioBeneficiarios.emit({data:this.listBeneficiario});
+
+
+  goToBeneficiaries(){
+    this.router.navigate(['/beneficiarios',this.ID]);
+  }
+  goToCuentas(){
+    this.router.navigate(['cuentas',this.ID]);
+  }
+
+  
  }
 
-}
+
+
 
 

@@ -1,5 +1,3 @@
-USE Banco
-GO
 
 --SELECT * FROM [dbo].[Parentesco]
 

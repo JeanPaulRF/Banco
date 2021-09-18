@@ -80,61 +80,6 @@ BEGIN
 END;
 GO
 
-/*
-CREATE PROCEDURE InsertarBeneficiario (
-	@NumeroCuenta varchar(32), 
-	@Identificacion varchar(32),
-	@Porcentaje int,
-	@Parentesco int)
-AS
-BEGIN
-
---INSERTA PERSONAS NO ENCONTRADAS
-	INSERT [dbo].[Persona] (
-	[Nombre],
-	[TipoIdentidad],
-	[ValorDocumentoIdentidad],
-	[Email],
-	[FechaDeNacimiento],
-	[Telefono1],
-	[Telefono2]
-	)
-SELECT 
-	'No conocido',					
-	1,								
-	@Identificacion,		
-	'na@na.com',					
-	'1900-01-01',					
-	'00000000',					
-	'00000000'					
-FROM [dbo].[Beneficiario] B
-WHERE NOT EXISTS (
-	SELECT 1 
-	FROM [dbo].[Persona] P
-	WHERE (P.ValorDocumentoIdentidad=@Identificacion)
-	)
-
-	-- Mapeo @@TempBeneficiario-Beneficiario
-	INSERT INTO [dbo].[Beneficiario](
-		[IdentificacionCliente], 
-		[IdentificacionCuenta], 
-		[NumeroCuenta], 
-		[Porcentaje],
-		[ValorDocumentoIdentidadBeneficiario],
-		[ValorParentesco]
-		)
-	SELECT C.IdentificacionCliente,
-		C.IdCuentaAhorro,
-		C.NumeroCuenta,
-		@Porcentaje,
-		@Identificacion,
-		@Parentesco
-	FROM [dbo].[CuentaAhorro] C
-	WHERE @NumeroCuenta=C.NumeroCuenta
-END;
-GO
-*/
-
 CREATE PROCEDURE EditarBeneficiario (
 	@IdentificacionAntigua varchar(32),
 	@Nombre varchar(64),
@@ -166,14 +111,14 @@ END;
 GO
 
 
-CREATE PROCEDURE EliminarBeneficiario (@Identificacion varchar(32))
+CREATE PROCEDURE EliminarBeneficiario (@Identificacion varchar(32), @value int)
 AS
 BEGIN
 	DECLARE @CurrentTime DATE=GETDATE();
 
 	UPDATE [dbo].[Beneficiario]
-	SET [Activo]=0,
-		[Porcentaje]=0,
+	SET [Activo]=@value,
+		[Porcentaje]=@value,
 		[FechaDesactivacion]=@CurrentTime
 	WHERE [ValorDocumentoIdentidadBeneficiario]=@Identificacion
 
@@ -266,10 +211,6 @@ GO
 CREATE PROCEDURE GetBeneficiariosActivosDeCliente (@Identificacion varchar(32))
 AS
 BEGIN
-	/*USE Banco
-	GO
-	DECLARE @Identificacion varchar(32)
-	SET @Identificacion='117359964'*/
 
 	DECLARE @IdCliente int;
 	SELECT @IdCliente = P.IdPersona
@@ -339,11 +280,6 @@ GO
 CREATE PROCEDURE GetCuenta(@NumeroCuenta varchar(32))
 AS
 BEGIN
-	/*USE Banco
-	GO
-	DECLARE @NumeroCuenta varchar(32)
-	SET @NumeroCuenta='11090371'*/
-	
 	SELECT * FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta
 END;
 GO
@@ -352,11 +288,6 @@ GO
 CREATE PROCEDURE GetBeneficiario (@Identificacion varchar(32))
 AS
 BEGIN
-	/*USE Banco
-	GO
-	DECLARE @Identificacion varchar(32)
-	SET @Identificacion='117359964'*/
-
 	DECLARE @TempBeneficiario TABLE(
 		NumeroCuenta varchar(32),
 		Nombre varchar(64),
@@ -504,9 +435,22 @@ GO
 
 --PRUEBA
 
-CREATE PROCEDURE get_users_prueba
+CREATE PROCEDURE GetTodosUsuarios
 AS
 BEGIN
 	SELECT * FROM dbo.Usuario;
 END;
 GO
+
+CREATE PROCEDURE GetUser (@Identificacion varchar(32))
+AS
+BEGIN 
+	SELECT * FROM [dbo].[Usuario] WHERE [ValorDocumentoIdentidad] =	@Identificacion
+END;
+GO
+
+--PRUEBA
+
+
+
+

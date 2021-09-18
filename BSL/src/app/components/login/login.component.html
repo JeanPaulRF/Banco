@@ -6,20 +6,21 @@
     </div>
 </mat-toolbar>
   
-<div class = "login-form">
+<div class = "login-form" [formGroup]="registerForm">
     <mat-card>
     <mat-card-content>
       <h1>LOGIN</h1>
       <mat-form-field class = "full-with-input">
-        <input text="text" matInput placeholder="Username" required>
-        <input type="password" matInput placeholder="Password" required> 
+        <input text="text" matInput placeholder="Username" required id="user" formControlName="username">
+        <!-- <input type="text" matInput placeholder="Password" required id="password" formControlName="password">  -->
       </mat-form-field>
   
       <mat-form-field class = "full-with-input" separator>
-        <input type="password" matInput placeholder="Password" required> 
+        <input type="password" matInput placeholder="Password" required formControlName="password"> 
       </mat-form-field>
   
-      <button type="submit" mat-raised-button color="primary">Login</button>
+      <button type="submit" mat-raised-button color="primary" (click)="log()"> Login </button>
+    
     
     </mat-card-content>
   </mat-card>
