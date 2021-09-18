@@ -2,59 +2,85 @@ USE [Banco]
 GO
 
 --FUNCIONES BASICAS DE BENEFICIARIO
-/*
+
 CREATE PROCEDURE InsertarBeneficiario (
-	@Nombre varchar(64),
 	@NumeroCuenta varchar(32),
-	@TipoIdentificacion int,
 	@Identificacion varchar(32),
 	@Parentesco int, 
-	@Porcentaje int,
-	@FechaNacimiento date,
-	@Email varchar(32),
-	@Telefono1 int,
-	@Telefono2 int
+	@Porcentaje int
 	)
 AS
 BEGIN
-	INSERT INTO [dbo].[Persona](
-		[Nombre],
-		[ValorDocumentoIdentidad],
-		[TipoIdentidad],
-		[FechaDeNacimiento],
-		[Email],
-		[Telefono1],
-		[Telefono2])
-	VALUES (
-		@Nombre,
-		@Identificacion,
-		@TipoIdentificacion,
-		@FechaNacimiento,
-		@Email,
-		@Telefono1,
-		@Telefono2)
+	IF EXISTS (SELECT * FROM [dbo].[Persona] WHERE [ValorDocumentoIdentidad]=@Identificacion)
+		BEGIN
 
-	-- Mapeo @@TempBeneficiario-Beneficiario
-	INSERT INTO [dbo].[Beneficiario](
-		[IdentificacionCliente], 
-		[IdentificacionCuenta], 
-		[NumeroCuenta], 
-		[Porcentaje],
-		[ValorDocumentoIdentidadBeneficiario],
-		[ValorParentesco]
-		)
-	SELECT C.IdentificacionCliente,
-		C.IdCuentaAhorro,
-		C.NumeroCuenta,
-		@Porcentaje,
-		@Identificacion,
-		@Parentesco
-	FROM [dbo].[CuentaAhorro] C
-	WHERE @NumeroCuenta=C.NumeroCuenta
+		-- Mapeo @@TempBeneficiario-Beneficiario
+		INSERT INTO [dbo].[Beneficiario](
+			[IdentificacionCliente], 
+			[IdentificacionCuenta], 
+			[NumeroCuenta], 
+			[Porcentaje],
+			[ValorDocumentoIdentidadBeneficiario],
+			[ValorParentesco]
+			)
+		SELECT C.IdentificacionCliente,
+			C.IdCuentaAhorro,
+			C.NumeroCuenta,
+			@Porcentaje,
+			@Identificacion,
+			@Parentesco
+		FROM [dbo].[CuentaAhorro] C
+		WHERE @NumeroCuenta=C.NumeroCuenta
+
+		SELECT * FROM [dbo].[Beneficiario] WHERE [ValorDocumentoIdentidadBeneficiario]='777777'
+
+		SELECT * FROM [dbo].[Persona] WHERE	[ValorDocumentoIdentidad]=@Identificacion
+
+		END
+
+	ELSE 
+		BEGIN
+
+		INSERT INTO [dbo].[Persona](
+			[Nombre],
+			[ValorDocumentoIdentidad],
+			[TipoIdentidad],
+			[FechaDeNacimiento],
+			[Email],
+			[Telefono1],
+			[Telefono2])
+		SELECT 
+			'No conocido',					
+			@Identificacion,								
+			1,		
+			'na@na.com',					
+			'1901-01-01',				
+			'00000000',					
+			'00000000'
+
+		-- Mapeo @@TempBeneficiario-Beneficiario
+		INSERT INTO [dbo].[Beneficiario](
+			[IdentificacionCliente], 
+			[IdentificacionCuenta], 
+			[NumeroCuenta], 
+			[Porcentaje],
+			[ValorDocumentoIdentidadBeneficiario],
+			[ValorParentesco]
+			)
+		SELECT C.IdentificacionCliente,
+			C.IdCuentaAhorro,
+			C.NumeroCuenta,
+			@Porcentaje,
+			@Identificacion,
+			@Parentesco
+		FROM [dbo].[CuentaAhorro] C
+		WHERE @NumeroCuenta=C.NumeroCuenta
+
+		END
 END;
 GO
-*/
 
+/*
 CREATE PROCEDURE InsertarBeneficiario (
 	@NumeroCuenta varchar(32), 
 	@Identificacion varchar(32),
@@ -107,7 +133,7 @@ WHERE NOT EXISTS (
 	WHERE @NumeroCuenta=C.NumeroCuenta
 END;
 GO
-
+*/
 
 CREATE PROCEDURE EditarBeneficiario (
 	@IdentificacionAntigua varchar(32),
@@ -115,7 +141,7 @@ CREATE PROCEDURE EditarBeneficiario (
 	@Identificacion varchar(32),
 	@Parentesco int, 
 	@Porcentaje int,
-	@FechaNacimiento date,
+	@FechaNacimiento varchar(32),
 	@Email varchar(32),
 	@Telefono1 int,
 	@Telefono2 int
@@ -143,13 +169,15 @@ GO
 CREATE PROCEDURE EliminarBeneficiario (@Identificacion varchar(32))
 AS
 BEGIN
-	DECLARE @CurrentTime DATETIME=GETDATE();
+	DECLARE @CurrentTime DATE=GETDATE();
 
 	UPDATE [dbo].[Beneficiario]
 	SET [Activo]=0,
 		[Porcentaje]=0,
 		[FechaDesactivacion]=@CurrentTime
 	WHERE [ValorDocumentoIdentidadBeneficiario]=@Identificacion
+
+	SELECT * FROM Beneficiario
 END;
 GO
 
@@ -197,7 +225,7 @@ BEGIN
 		Identificacion varchar(32), 
 		Parentesco int, 
 		Porcentaje int,
-		FechaNacimiento date,
+		FechaNacimiento varchar(32),
 		Email varchar(32),
 		Telefono1 int,
 		Telefono2 int,
@@ -254,7 +282,7 @@ BEGIN
 		Identificacion varchar(32), 
 		Parentesco int, 
 		Porcentaje int,
-		FechaNacimiento date,
+		FechaNacimiento varchar(32),
 		Email varchar(32),
 		Telefono1 int,
 		Telefono2 int,
@@ -335,7 +363,7 @@ BEGIN
 		Identificacion varchar(32), 
 		Parentesco int, 
 		Porcentaje int,
-		FechaNacimiento date,
+		FechaNacimiento varchar(32),
 		Email varchar(32),
 		Telefono1 int,
 		Telefono2 int,
@@ -438,7 +466,7 @@ BEGIN
 		Identificacion varchar(32), 
 		Parentesco int, 
 		Porcentaje int,
-		FechaNacimiento date,
+		FechaNacimiento varchar(32),
 		Email varchar(32),
 		Telefono1 int,
 		Telefono2 int,
