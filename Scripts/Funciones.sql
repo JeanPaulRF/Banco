@@ -160,7 +160,9 @@ BEGIN
 	FROM [dbo].[Persona] P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion;
 
-	SELECT COUNT(*) FROM [dbo].[Beneficiario] WHERE [IdentificacionCliente]=@IdCliente
+	SELECT COUNT(*) FROM [dbo].[Beneficiario] 
+	WHERE [IdentificacionCliente]=@IdCliente
+	AND [Activo]=1
 END;
 GO
 
