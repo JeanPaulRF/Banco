@@ -93,11 +93,24 @@ CREATE PROCEDURE EditarBeneficiario (
 	)
 AS
 BEGIN
-	UPDATE [dbo].[Beneficiario]
-	SET [Porcentaje]=@Porcentaje, 
-		[ValorDocumentoIdentidadBeneficiario]=@Identificacion,
-		[ValorParentesco]=@Parentesco
-	WHERE [ValorDocumentoIdentidadBeneficiario]=@IdentificacionAntigua
+	/*USE Banco
+	GO
+
+	DECLARE @IdentificacionAntigua varchar(32) = '106261426'
+	DECLARE @Nombre varchar(64)='PANCHO'
+	DECLARE @Identificacion varchar(32)='88888888'
+	DECLARE @Parentesco int=2
+	DECLARE @Porcentaje int=0
+	DECLARE @FechaNacimiento varchar(32)='2000-01-01'
+	DECLARE @Email varchar(32)='pancho@pancho.com'
+	DECLARE @Telefono1 int='000000'
+	DECLARE @Telefono2 int='000000'
+	*/
+
+	DECLARE @IdBuscado2 int;
+	SELECT @IdBuscado2 = B.IdPersona
+	FROM [dbo].[Persona] B
+	WHERE B.ValorDocumentoIdentidad=@IdentificacionAntigua;
 
 	UPDATE [dbo].[Persona]
 	SET [Nombre]=@Nombre,
@@ -106,7 +119,18 @@ BEGIN
 		[Email]=@Email,
 		[Telefono1]=@Telefono1,
 		[Telefono2]=@Telefono2
-	WHERE [ValorDocumentoIdentidad]=@IdentificacionAntigua
+	WHERE [IdPersona]=@IdBuscado2
+
+	DECLARE @IdBuscado int;
+	SELECT @IdBuscado = B.IdBeneficiario
+	FROM [dbo].[Beneficiario] B
+	WHERE B.ValorDocumentoIdentidadBeneficiario=@IdentificacionAntigua;
+
+	UPDATE [dbo].[Beneficiario]
+	SET [Porcentaje]=@Porcentaje,
+		[ValorDocumentoIdentidadBeneficiario]=@Identificacion,
+		[ValorParentesco]=@Parentesco
+	WHERE [IdBeneficiario]=@IdBuscado
 END;
 GO
 
@@ -144,10 +168,10 @@ GO
 CREATE PROCEDURE GetTotalPorcentajes (@Identificacion varchar(32))
 AS
 BEGIN
-	DECLARE @IdCliente int;
-	SELECT @IdCliente = P.IdPersona
-	FROM [dbo].[Persona] P
-	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+		DECLARE @IdCliente int;
+		SELECT @IdCliente = P.IdPersona
+		FROM [dbo].[Persona] P
+		WHERE P.ValorDocumentoIdentidad=@Identificacion;
 
 	SELECT SUM ([Porcentaje]) FROM [dbo].[Beneficiario] WHERE [IdentificacionCliente]=@IdCliente
 END;
