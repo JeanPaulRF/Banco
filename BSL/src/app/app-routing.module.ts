@@ -3,41 +3,41 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { ClientesComponent } from './components/clientes/clientes.component';
 import { CuentasComponent } from './components/cuentas/cuentas.component';
-import { HomeComponent} from './components/home/home.component';
+import { HomeComponent } from './components/home/home.component';
 import { BeneficiariosComponent } from './components/beneficiarios/beneficiarios.component';
-import { AddBeneficiarieComponent} from 'src/app/components/formsComponents/add-beneficiarie/add-beneficiarie.component';
+import { AddBeneficiarieComponent } from 'src/app/components/formsComponents/add-beneficiarie/add-beneficiarie.component';
 import { ModifyBenefComponent } from './components/formsComponents/modify-benef/modify-benef.component';
 const routes: Routes = [
 
   {
- 
+
     path: '',
-    
-    component:LoginComponent
+
+    component: LoginComponent
   },
   {
-    path:'login',
-    component:LoginComponent
+    path: 'login',
+    component: LoginComponent
   },
   {
-    path:'clientes',
-    component:ClientesComponent
+    path: 'clientes',
+    component: ClientesComponent
   },
   {
-    path:'cuentas/:id',
-    component:CuentasComponent
+    path: 'cuentas/:id/:admin',
+    component: CuentasComponent
   },
   {
-    path:'home',
-    component:HomeComponent
+    path: 'home',
+    component: HomeComponent
   },
   {
-    path:'home/:id',
-    component:HomeComponent
+    path: 'home/:id',
+    component: HomeComponent
   },
   {
-    path:  'beneficiarios/:id',
-    component:BeneficiariosComponent
+    path: 'beneficiarios/:id/:admin',
+    component: BeneficiariosComponent
   },
   {
     path: 'add_benef/:id',
@@ -47,7 +47,7 @@ const routes: Routes = [
     path: 'modify%benef/:id',
     component: ModifyBenefComponent
   }
-  
+
 
 
   // { path: 'admin', loadChildren: () => import('./pages/admin/admin.module').then(m => m.AdminModule) },

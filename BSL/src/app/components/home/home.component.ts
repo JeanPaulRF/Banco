@@ -1,9 +1,10 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DataService } from '../../data.service';
 import { usuario } from 'src/app/modules/usuario';
-import { beneficiarios } from 'src/app/modules/beneficiarios';
 import { EmiterService } from 'src/app/emiter.service';
-import { Router, ActivatedRoute} from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -13,53 +14,51 @@ import { Router, ActivatedRoute} from '@angular/router';
 
 export class HomeComponent implements OnInit {
 
-  listUser:usuario[] = [];
-  ID:any;
+  listUser: usuario[] = [];
+  ID: any;
 
-  nombre:any;
-  Identificacion:any;
+  nombre: any;
+  Identificacion: any;
+
+  admin: any;
+  itsAdmin: boolean = false;
+
+  constructor(public dataService: DataService, private EmiterService: EmiterService, private router: Router,
+    private route: ActivatedRoute) { }
 
 
 
-  constructor(public dataService: DataService, private EmiterService:EmiterService, private router:Router, 
-  private route: ActivatedRoute){}
-  
-
-  
-  ngOnInit(){
-    this.ID=this.route.snapshot.paramMap.get('id');
+  ngOnInit() {
+    this.ID = this.route.snapshot.paramMap.get('id');
     this.get_user();
   }
 
-  
-  get_user(){
-    this.dataService.get_user(this.ID).subscribe(user=>{
-      console.log(user);
+
+  get_user() {
+    this.dataService.get_user(this.ID).subscribe(user => {
+      // console.log(user);
       this.listUser = user;
       this.nombre = this.listUser[0].Nombre;
       this.Identificacion = this.listUser[0].ValorDocumentoIdentidad;
+      if (this.listUser[0].Administrador == true) {
+        this.admin = 1;
+        this.itsAdmin = true;
+      } else {
+        this.admin = 0;
+      }
     })
   }
 
-  // fetchElementos(){
-  //   this.dataService.get_beneficiaries()
-  //   .subscribe(benefs => {
-  //     this.listaAllbenefs = benefs;
-  //     console.log(this.listaAllbenefs);
-  //   })
-  // }
 
-
-
-  goToBeneficiaries(){
-    this.router.navigate(['/beneficiarios',this.ID]);
+  goToBeneficiaries() {
+    this.router.navigate(['/beneficiarios', this.ID, this.admin]);
   }
-  goToCuentas(){
-    this.router.navigate(['cuentas',this.ID]);
+  goToCuentas() {
+    this.router.navigate(['cuentas', this.ID, this.admin]);
   }
 
-  
- }
+
+}
 
 
 

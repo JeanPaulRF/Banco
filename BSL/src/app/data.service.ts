@@ -1,81 +1,100 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { users } from './components/home/users.module';
 import { beneficiarios } from './modules/beneficiarios';
-import { cuentas } from './modules/cuentas'; 
+import { cuentas } from './modules/cuentas';
 import { usuario } from './modules/usuario';
+import { clientes } from './modules/clientes';
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
-  private API = "http://localhost:3002/api";  
-  
-  constructor(private response: HttpClient) {}
+  private API = "http://localhost:3002/api";
 
-  ngOnInit() {}
+  constructor(private response: HttpClient) { }
+
+  ngOnInit() { }
 
 
-  login_Confirmation(username:string,password:string){
-    let data = {username,password};
-    return this.response.get(this.API+'/banco/users/' + username+'/'+ password);
+  login_Confirmation(username: string, password: string) {
+    let data = { username, password };
+    return this.response.get(this.API + '/banco/users/' + username + '/' + password);
   }
 
-    get_beneficiaries(){
-      return this.response.get<beneficiarios[]>(this.API+'/banco/beneficiarios');
-    }
+  get_cantidaBeneficiarios(identificacion: string) {
+    let data = { identificacion };
+    return this.response.get(this.API + '/banco/cantidad');
+  }
 
-   
-    get_user(identificacion:string){
-      return this.response.get<usuario[]>(this.API+'/banco/users/'+identificacion);
-    }
-
-
-    get_beneficiario(identificacion:string){
-      return this.response.get<beneficiarios[]>(this.API+'/banco/beneficiario/'+identificacion);
-    }
-
-     get_beneficiaries_by_cliente(identificacion:string){
-      return this.response.get<beneficiarios[]>(this.API+'/banco/beneficiarios/' + identificacion);
-    }
+  get_beneficiaries() {
+    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiarios');
+  }
 
 
-    get_cuentas_cliente(identificacion:string){
-      return this.response.get<cuentas[]>(this.API+'/banco/cuentas');
-    }
+  get_user(identificacion: string) {
+    return this.response.get<usuario[]>(this.API + '/banco/users/' + identificacion);
+  }
 
 
-    insertar_beneficiario(
-      NumeroCuenta:string, 
-      Identificacion: string,
-      Parentesco:number, 
-      Porcentaje:number
-      )
-    { 
-      let data = {NumeroCuenta,Identificacion,Parentesco,
-      Porcentaje};
-      return this.response.post(this.API+'/banco/benefs',data);
-    }
-  
+  get_beneficiario(identificacion: string) {
+    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiario/' + identificacion);
+  }
 
-    eliminar_beneficiario(Identificacion:string, value:number){
-      let data= {Identificacion,value};
-      return this.response.put(this.API+'/banco/' + Identificacion,data);
-    }
+  get_beneficiaries_by_cliente(identificacion: string) {
+    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiarios/' + identificacion);
+  }
 
-    modificar_beneficiario(Identificacion1:string,Nombre:string, Identificacion2:string, Parentesco:number,
-      Porcentaje:number,Email:string,Telefono1:number,Telefono2:number){
-     let data= {
-      Identificacion1, 
+
+  get_cuentas_cliente(identificacion: string) {
+    return this.response.get<cuentas[]>(this.API + '/banco/cuentas/' + identificacion);
+  }
+
+  get_cuentas() {
+    return this.response.get<cuentas[]>(this.API + '/banco/cuentas');
+  }
+
+  get_clientes() {
+    return this.response.get<clientes[]>(this.API + '/banco/clientes');
+  }
+
+
+  insertar_beneficiario(
+    NumeroCuenta: string,
+    Identificacion: string,
+    Parentesco: number,
+    Porcentaje: number
+  ) {
+    let data = {
+      NumeroCuenta, Identificacion, Parentesco,
+      Porcentaje
+    };
+    return this.response.post(this.API + '/banco/benefs', data);
+  }
+
+
+  eliminar_beneficiario(Identificacion: string, value: number) {
+    let data = { Identificacion, value };
+    return this.response.put(this.API + '/banco/' + Identificacion, data);
+  }
+
+  modificar_beneficiario(Identificacion1: string, Nombre: string, Identificacion2: string,
+    Parentesco: number,
+    Porcentaje: number, FechaNaci: string, Email: string, Telefono1: number,
+    Telefono2: number) {
+    let data2 = {
+      Identificacion1,
       Nombre,
       Identificacion2,
       Parentesco,
       Porcentaje,
+      FechaNaci,
       Email,
       Telefono1,
-      Telefono2};
-      return this.response.put(this.API+'/banco/modificar/' + Identificacion1,data);
-    }
+      Telefono2
+    };
+    console.log(data2);
+    return this.response.put(this.API + '/banco/' + Identificacion1, data2);
+  }
 
 
 

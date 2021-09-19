@@ -1,39 +1,65 @@
 <mat-toolbar color="primary">
-	<a>BSL</a>
+	<mat-icon>account_balance</mat-icon>
+	<a>Banco San Luis</a>
 	<span class="move"></span>
 
-	<a routerLink="/beneficiarios" routerLinkActive="active">
-		<button mat-button >Beneficiarios </button>
+
+	<a>
+		<button mat-button (click)="goToBeneficiaries()">
+			<mat-icon>face</mat-icon>
+			Beneficiarios
+		</button>
 	</a>
-	<a routerLink="/cuentas" routerLinkActive="active">
-		<button mat-button>Cuentas</button>
+	<a>
+		<button mat-button>
+			<mat-icon>account_circle</mat-icon>
+			Cuentas
+		</button>
 	</a>
-	<a routerLink="/clientes" routerLinkActive="active">
-		<button mat-button>Clientes </button>
-	</a>
+	<ng-template [ngIf]="this.itsAdmin">
+		<a routerLink="/clientes" routerLinkActive="active">
+			<button mat-button>
+				<mat-icon>info</mat-icon>
+				Clientes
+			</button>
+		</a>
+	</ng-template>
 	<a routerLink="/login" routerLinkActive="active">
-		<button mat-button>LogOut</button>
+		<button mat-button>
+			<mat-icon>power_settings_new</mat-icon>
+			LogOut
+		</button>
 	</a>
+
+	<a>
+
+		<button mat-button (click)="goToHome()">
+			<mat-icon>home</mat-icon>
+			Home
+		</button>
+	</a>
+
+
 </mat-toolbar>
 
 <!-- <div style="width:70%; height:100%;background: rgb(219, 219, 219);display:flex;align-items:center"> -->
-	<div class="mainDiv">
-		<div class="divTitle">
-			<h1 style="margin-top: 0;text-align:center;font-size: 25px;">Cuentas</h1>
-			<!-- <button mat-mini-fab color="primary" style="margin-left: auto;
+<div class="mainDiv">
+	<div class="divTitle">
+		<h1 style="margin-top: 0;text-align:center;font-size: 25px;">Cuentas</h1>
+		<!-- <button mat-mini-fab color="primary" style="margin-left: auto;
             position: relative; margin-top:-10px;" class = tooltip-wrap (click)="goToAdd()">
                 <mat-icon>add</mat-icon>
                 <div class="tooltip-content">
                     <p>Agregar</p>
                 </div> 
             </button> -->
-		</div>
+	</div>
 
-		<br style="height:100%">
-		<div class="divCenter">
-			<div *ngFor="let cuentas of this.listCuentas" class="divUsers">
-				<!-- <div class="divUsersTitle"> -->
-                 <!-- <button mat-mini-fab style="margin-left: auto; position: relative; 
+	<br style="height:100%">
+	<div class="divCenter">
+		<div *ngFor="let cuentas of this.listCuentas" class="divUsers">
+			<!-- <div class="divUsersTitle"> -->
+			<!-- <button mat-mini-fab style="margin-left: auto; position: relative; 
                  z-index: 1; margin-top: auto;" class = tooltip-wrap  (click)="goToModify(beneficiarios.Identificacion)">
                         <mat-icon>description</mat-icon>
                         <div class="tooltip-content">
@@ -48,15 +74,18 @@
                             <p>Eliminar</p>
                         </div> 
                     </button> -->
-					<!-- <h1 style="margin-top: 0;text-align:center"> {{ users.Nombre }}</h1> -->
-				<!-- </div> -->
-				<div class="divUsersInformation">
-					<h1>Numero de cuenta: {{ cuentas.NumeroCuenta }}</h1>
-          <h1> Saldo: {{ cuentas.Saldo}}</h1>
-          <h1> FechaConstitucion: {{ cuentas.FechaConstitucion }}</h1>
-				</div>
+			<!-- <h1 style="margin-top: 0;text-align:center"> {{ users.Nombre }}</h1> -->
+			<!-- </div> -->
+			<div class="divUsersInformation">
+				<h1> Identificacion: {{ cuentas.ValorDocumentoIdentidadCliente }}</h1>
+				<h1>Numero de cuenta: {{ cuentas.NumeroCuenta }}</h1>
+				<h1> FechaConstitucion: {{ cuentas.FechaConstitucion }}</h1>
+				<h1> Tipo: {{ cuentas.TipoCuenta }}</h1>
+				<h1> Saldo: {{ cuentas.Saldo}}</h1>
+
 			</div>
 		</div>
-		<br>
 	</div>
+	<br>
+</div>
 <!-- </div> -->

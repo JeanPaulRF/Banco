@@ -35,7 +35,7 @@
         </div>
 
         <div class="col">
-          <mat-form-field class="full-width">
+          <mat-form-field class="full-width" appearance="fill">
             <mat-label>Porcentaje</mat-label>
             <input type="number" max="100" min="5" matInput id="porcent" value={{this.Porcentaje}} formControlName="porcent">
           </mat-form-field>
@@ -45,14 +45,26 @@
       <mat-label>Fecha de nacimiento</mat-label>
       <div class="row">
           <div class="col">
-            <input  id="dia" type="number"  placeholder="Día" class="col-xs-6" formControlName="dia">
-            <input  id="mes" type="number"  placeholder="Mes"  class="col-xs-6" formControlName="mes">
-            <input  id="año" type="number"  placeholder="Año"  class="col-xs-6" formControlName="año">
-        </div>
+
+          <mat-form-field appearance="fill" border-radius="25px" >
+            <mat-label>Dia</mat-label>
+            <input  id="dia" type="number" matInput value="{{this.dia}}" formControlName="dia">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill"  border-radius="25px">
+            <mat-label>Mes</mat-label>
+            <input  id="mes" type="number"  matInput value="{{this.mes}}" formControlName="mes">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill"  border-radius="25px">
+            <mat-label>Año</mat-label>
+            <input  id="año" type="number"  matInput value="{{this.year}}" formControlName="año">
+          </mat-form-field>
+          </div>
        
 
         <div class="col">
-          <mat-form-field class="full-width">
+          <mat-form-field class="full-width" appearance="fill">
             <mat-label>Parentesco</mat-label>
             <mat-select value={{this.Parentesco}}>
               <mat-option value="1">Padre</mat-option>
@@ -71,7 +83,7 @@
 
       <div class="row">
         <div class="col">
-          <mat-form-field class="withToEmail">
+          <mat-form-field class="withToEmail" appearance="fill">
             <mat-icon matSuffix>email</mat-icon>
             <mat-label>Email</mat-label>
             <input type="email" max="100" min="5" matInput id="correo"  value={{this.Email}} formControlName="correo">
@@ -81,13 +93,13 @@
 
       <div class="row">
         <div class="col">
-          <mat-form-field class="full-width">
+          <mat-form-field class="full-width" appearance="fill">
             <mat-icon matSuffix>phone</mat-icon>
             <input matInput #phonenumber maxlength="12" value={{this.Telefono1}} id="telefono" formControlName="phone1">
           </mat-form-field>
         </div>
         <div class="col">
-          <mat-form-field class="full-width">
+          <mat-form-field class="full-width" appearance="fill">
             <mat-icon matSuffix>phone</mat-icon>
             <input matInput #phonenumber maxlength="12"  value={{this.Telefono2}} id="telefono" formControlName="phone2">
           </mat-form-field>

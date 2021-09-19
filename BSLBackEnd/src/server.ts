@@ -48,13 +48,14 @@ class Server {
   routerConfig(): void {
     this.app.use("/api/banco", BancoRouter);
 
-   //Set Port
-   
-   
+    //Set Port
 
-   this.app.listen(process.env.port || 3002, () =>
-   console.log(`Listening on port: ${process.env.port || 3002}`)
-  );}
+
+
+    this.app.listen(process.env.port || 3002, () =>
+      console.log(`Listening on port: ${process.env.port || 3002}`)
+    );
+  }
 }
 
 //const server = new Server();
