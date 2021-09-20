@@ -15,35 +15,24 @@ export class DataService {
 
   ngOnInit() { }
 
+  //usuarios
 
   login_Confirmation(username: string, password: string) {
     let data = { username, password };
     return this.response.get(this.API + '/banco/users/' + username + '/' + password);
   }
 
-  get_cantidaBeneficiarios(identificacion: string) {
-    let data = { identificacion };
-    return this.response.get(this.API + '/banco/cantidad');
-  }
-
-  get_beneficiaries() {
-    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiarios');
-  }
-
-
   get_user(identificacion: string) {
     return this.response.get<usuario[]>(this.API + '/banco/users/' + identificacion);
   }
 
+  //clientes
 
-  get_beneficiario(identificacion: string) {
-    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiario/' + identificacion);
+  get_clientes() {
+    return this.response.get<clientes[]>(this.API + '/banco/clientes');
   }
 
-  get_beneficiaries_by_cliente(identificacion: string) {
-    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiarios/' + identificacion);
-  }
-
+  //cuentas
 
   get_cuentas_cliente(identificacion: string) {
     return this.response.get<cuentas[]>(this.API + '/banco/cuentas/' + identificacion);
@@ -53,10 +42,24 @@ export class DataService {
     return this.response.get<cuentas[]>(this.API + '/banco/cuentas');
   }
 
-  get_clientes() {
-    return this.response.get<clientes[]>(this.API + '/banco/clientes');
+  //beneficiarios
+
+  get_beneficiaries() {
+    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiarios');
   }
 
+  get_beneficiario(identificacion: string) {
+    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiario/' + identificacion);
+  }
+
+  get_beneficiaries_by_cliente(identificacion: string) {
+    return this.response.get<beneficiarios[]>(this.API + '/banco/beneficiarios/' + identificacion);
+  }
+
+  get_cantidaBeneficiarios(identificacion: string) {
+    let data = { identificacion };
+    return this.response.get(this.API + '/banco/cantidad');
+  }
 
   insertar_beneficiario(
     NumeroCuenta: string,
@@ -70,7 +73,6 @@ export class DataService {
     };
     return this.response.post(this.API + '/banco/benefs', data);
   }
-
 
   eliminar_beneficiario(Identificacion: string, value: number) {
     let data = { Identificacion, value };
@@ -95,8 +97,5 @@ export class DataService {
     console.log(data2);
     return this.response.put(this.API + '/banco/' + Identificacion1, data2);
   }
-
-
-
 
 }
