@@ -2,6 +2,3 @@
 /dist
 /public
 
-package-lock.json
-.env
-config.ts
