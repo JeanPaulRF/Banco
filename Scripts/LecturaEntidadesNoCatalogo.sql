@@ -7,7 +7,7 @@ DECLARE @CurrentTime DATE=GETDATE();
 
 SET @xmlData = 
 		(SELECT *
-		FROM OPENROWSET(BULK 'C:\Users\Usuario\Desktop\Banco\Scripts\DatosTarea.xml', SINGLE_BLOB)
+		FROM OPENROWSET(BULK 'C:\Archivos\DatosTarea-1-V2.xml', SINGLE_BLOB) 
 		AS xmlData);
 
 
