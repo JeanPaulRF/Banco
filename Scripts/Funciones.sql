@@ -1,37 +1,8 @@
 USE [Banco]
 GO
 
-<<<<<<< HEAD
 
-
-CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
-AS
-BEGIN
-	DECLARE @Tabla TABLE (Resultado int, userId VARCHAR(32))
-
-	IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
-		IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
-		BEGIN
-			INSERT INTO @Tabla(Resultado,userId) SELECT 1,ValorDocumentoIdentidad FROM [dbo].[Usuario] WHERE @Pass=Contrasena
-		END
-		ELSE
-			INSERT INTO @Tabla(Resultado) SELECT 0
-	ELSE
-		INSERT INTO @Tabla(Resultado) SELECT 0
-	
-	SELECT * FROM @Tabla
-END;
-GO
-
-USE [Banco]
-GO
-USE [Banco]
-GO
-
-=======
->>>>>>> e0238d50bad57cfd154156208ea09cbc58d95a0d
 --FUNCIONES BASICAS DE BENEFICIARIO
---DROP PROCEDURE InsertarBeneficiario
 CREATE PROCEDURE InsertarBeneficiario (
 	@NumeroCuenta varchar(32),
 	@Identificacion varchar(32),
@@ -45,35 +16,35 @@ BEGIN
 
 		-- Mapeo @@TempBeneficiario-Beneficiario
 		INSERT INTO [dbo].[Beneficiario](
-			[IdentificacionCliente], 
-			[IdentificacionCuenta], 
+			[IdCliente], 
+			[IdCuentaAhorro], 
 			[NumeroCuenta], 
 			[Porcentaje],
-			[ValorDocumentoIdentidadBeneficiario],
-			[ValorParentesco]
+			[IdBeneficiario],
+			[IdParentesco]
 			)
-		SELECT C.IdentificacionCliente,
-			C.IdCuentaAhorro,
+		SELECT C.IdCliente,
+			C.ID,
 			C.NumeroCuenta,
 			@Porcentaje,
-			@Identificacion,
+			P.ID,
 			@Parentesco
-		FROM [dbo].[CuentaAhorro] C
-		WHERE @NumeroCuenta=C.NumeroCuenta
-
-		SELECT * FROM [dbo].[Beneficiario] WHERE [ValorDocumentoIdentidadBeneficiario]='777777'
-
-		SELECT * FROM [dbo].[Persona] WHERE	[ValorDocumentoIdentidad]=@Identificacion
+		FROM [dbo].[CuentaAhorro] C, [dbo].[Persona] P
+		WHERE @NumeroCuenta=C.NumeroCuenta	
+			AND @Identificacion=P.ValorDocumentoIdentidad
 
 		END
 
 	ELSE 
 		BEGIN
 
+		DECLARE @vardate varchar(100)='1901-01-01'
+		SELECT CAST(@vardate AS date) AS dataconverted;
+
 		INSERT INTO [dbo].[Persona](
 			[Nombre],
 			[ValorDocumentoIdentidad],
-			[TipoIdentidad],
+			[IdTipoIdentidad],
 			[FechaDeNacimiento],
 			[Email],
 			[Telefono1],
@@ -82,38 +53,35 @@ BEGIN
 			'No conocido',					
 			@Identificacion,								
 			1,							
-			'1901-01-01',
+			@vardate,
 			'na@na.com',
 			'00000000',					
 			'00000000'
 
 		-- Mapeo @@TempBeneficiario-Beneficiario
 		INSERT INTO [dbo].[Beneficiario](
-			[IdentificacionCliente], 
-			[IdentificacionCuenta], 
+			[IdCliente], 
+			[IdCuentaAhorro], 
 			[NumeroCuenta], 
 			[Porcentaje],
-			[ValorDocumentoIdentidadBeneficiario],
-			[ValorParentesco]
+			[IdBeneficiario],
+			[IdParentesco]
 			)
-		SELECT C.IdentificacionCliente,
-			C.IdCuentaAhorro,
+		SELECT C.IdCliente,
+			C.ID,
 			C.NumeroCuenta,
 			@Porcentaje,
-			@Identificacion,
+			P.ID,
 			@Parentesco
-		FROM [dbo].[CuentaAhorro] C
-		WHERE @NumeroCuenta=C.NumeroCuenta
+		FROM [dbo].[CuentaAhorro] C, [dbo].[Persona] P
+		WHERE @NumeroCuenta=C.NumeroCuenta	
+			AND @Identificacion=P.ValorDocumentoIdentidad
 
 		END
 END;
 GO
 
-<<<<<<< HEAD
---DROP PROCEDURE EditarBeneficiario
 
-=======
->>>>>>> e0238d50bad57cfd154156208ea09cbc58d95a0d
 CREATE PROCEDURE EditarBeneficiario (
 	@IdentificacionAntigua varchar(32),
 	@Nombre varchar(64),
@@ -127,25 +95,11 @@ CREATE PROCEDURE EditarBeneficiario (
 	)
 AS
 BEGIN
-<<<<<<< HEAD
-=======
-	/*USE Banco
-	GO
 
-	DECLARE @IdentificacionAntigua varchar(32) = '106261426'
-	DECLARE @Nombre varchar(64)='PANCHO'
-	DECLARE @Identificacion varchar(32)='88888888'
-	DECLARE @Parentesco int=2
-	DECLARE @Porcentaje int=0
-	DECLARE @FechaNacimiento varchar(32)='2000-01-01'
-	DECLARE @Email varchar(32)='pancho@pancho.com'
-	DECLARE @Telefono1 int='000000'
-	DECLARE @Telefono2 int='000000'
-	*/
->>>>>>> e0238d50bad57cfd154156208ea09cbc58d95a0d
+	SELECT CAST(@FechaNacimiento AS date) AS dataconverted;
 
 	DECLARE @IdBuscado2 int;
-	SELECT @IdBuscado2 = B.IdPersona
+	SELECT @IdBuscado2 = B.ID
 	FROM [dbo].[Persona] B
 	WHERE B.ValorDocumentoIdentidad=@IdentificacionAntigua;
 
@@ -156,23 +110,18 @@ BEGIN
 		[Email]=@Email,
 		[Telefono1]=@Telefono1,
 		[Telefono2]=@Telefono2
-	WHERE [IdPersona]=@IdBuscado2
+	WHERE [ID]=@IdBuscado2
 
 	DECLARE @IdBuscado int;
-	SELECT @IdBuscado = B.IdBeneficiario
+	SELECT @IdBuscado = B.ID
 	FROM [dbo].[Beneficiario] B
-	WHERE B.ValorDocumentoIdentidadBeneficiario=@IdentificacionAntigua;
+	WHERE B.IdBeneficiario=@IdentificacionAntigua;
 
 	UPDATE [dbo].[Beneficiario]
 	SET [Porcentaje]=@Porcentaje,
-		[ValorDocumentoIdentidadBeneficiario]=@Identificacion,
-		[ValorParentesco]=@Parentesco
-	WHERE [IdBeneficiario]=@IdBuscado
-<<<<<<< HEAD
-
-	SELECT * FROM Beneficiario
-=======
->>>>>>> e0238d50bad57cfd154156208ea09cbc58d95a0d
+		[IdBeneficiario]=@Identificacion,
+		[IdParentesco]=@Parentesco
+	WHERE [ID]=@IdBuscado
 END;
 GO
 
@@ -182,99 +131,35 @@ AS
 BEGIN
 	DECLARE @CurrentTime DATE=GETDATE();
 
+	DECLARE @IdBen int;
+	SELECT @IdBen=P.ID
+	FROM [dbo].[Persona] P
+	WHERE P.ID = @Identificacion
+
 	UPDATE [dbo].[Beneficiario]
 	SET [Activo]=@value,
 		[Porcentaje]=@value,
 		[FechaDesactivacion]=@CurrentTime
-	WHERE [ValorDocumentoIdentidadBeneficiario]=@Identificacion
+	WHERE [IdBeneficiario]=@IdBen
 
 	SELECT * FROM Beneficiario
 END;
 GO
 
--- TOTALES
-exec GetTotalBeneficiarios '117370445'
-DROP PROCEDURE GetTotalBeneficiarios
+-- SP BENEFICIARIO
 CREATE PROCEDURE GetTotalBeneficiarios (@Identificacion varchar(32))
 AS
 BEGIN
 	DECLARE @IdCliente int;
-	SELECT @IdCliente = P.IdPersona
+	SELECT @IdCliente = P.ID
 	FROM dbo.Persona P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion;
 
 	SELECT COUNT(*) FROM [dbo].[Beneficiario] 
-	WHERE [IdentificacionCliente]=@IdCliente
+	WHERE [IdCliente]=@IdCliente
 	AND [Activo]=1
 END;
 GO
-
-
-CREATE PROCEDURE GetTotalPorcentajes (@Identificacion varchar(32))
-AS
-BEGIN
-		DECLARE @IdCliente int;
-		SELECT @IdCliente = P.IdPersona
-		FROM [dbo].[Persona] P
-		WHERE P.ValorDocumentoIdentidad=@Identificacion;
-
-	SELECT SUM ([Porcentaje]) FROM [dbo].[Beneficiario] WHERE [IdentificacionCliente]=@IdCliente
-END;
-GO
-
---CONSULTAS ESPECIFICAS
-
-CREATE PROCEDURE GetBeneficiariosDeCliente (@Identificacion varchar(32))
-AS
-BEGIN
-
-	DECLARE @IdCliente int;
-	SELECT @IdCliente = P.IdPersona
-	FROM [dbo].[Persona] P
-	WHERE P.ValorDocumentoIdentidad=@Identificacion;
-
-	DECLARE @TempBeneficiario TABLE(
-		NumeroCuenta varchar(32),
-		Nombre varchar(64),
-		Identificacion varchar(32), 
-		Parentesco int, 
-		Porcentaje int,
-		FechaNacimiento varchar(32),
-		Email varchar(32),
-		Telefono1 int,
-		Telefono2 int,
-		Activo bit
-	)
-	INSERT INTO @TempBeneficiario(
-		Identificacion,
-		NumeroCuenta,
-		Parentesco, 
-		Porcentaje,
-		Activo
-	)
-	SELECT
-		B.ValorDocumentoIdentidadBeneficiario,
-		B.NumeroCuenta,
-		B.ValorParentesco,
-		B.Porcentaje,
-		B.Activo
-	FROM [dbo].[Beneficiario] B
-	WHERE B.IdentificacionCliente=@IdCliente
-	
-	SELECT
-		T.Identificacion,
-		T.NumeroCuenta,
-		T.Parentesco, 
-		T.Porcentaje,
-		P.[Nombre],
-		P.[FechaDeNacimiento],
-		P.[Email],
-		P.[Telefono1],
-		P.[Telefono2],
-		T.Activo
-	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
-END;
-GO	
 
 
 CREATE PROCEDURE GetBeneficiariosActivosDeCliente (@Identificacion varchar(32))
@@ -282,7 +167,61 @@ AS
 BEGIN
 
 	DECLARE @IdCliente int;
-	SELECT @IdCliente = P.IdPersona
+	SELECT @IdCliente = P.ID
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+
+	DECLARE @TempBeneficiario TABLE(
+		NumeroCuenta varchar(32),
+		Nombre varchar(64),
+		ID varchar(32), 
+		Parentesco int, 
+		Porcentaje int,
+		FechaNacimiento varchar(32),
+		Email varchar(32),
+		Telefono1 int,
+		Telefono2 int,
+		Activo bit
+	)
+	INSERT INTO @TempBeneficiario(
+		ID,
+		NumeroCuenta,
+		Parentesco, 
+		Porcentaje,
+		Activo
+	)
+	SELECT
+		P.ValorDocumentoIdentidad,
+		B.NumeroCuenta,
+		B.IdParentesco,
+		B.Porcentaje,
+		B.Activo
+	FROM [dbo].[Beneficiario] B, [dbo].[Persona] P
+	WHERE B.IdCliente=@IdCliente AND Activo=1
+		AND B.IdBeneficiario=P.ID
+	
+	SELECT
+		T.ID,
+		T.NumeroCuenta,
+		T.Parentesco, 
+		T.Porcentaje,
+		P.[Nombre],
+		P.[FechaDeNacimiento],
+		P.[Email],
+		P.[Telefono1],
+		P.[Telefono2],
+		T.Activo
+	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.ID=P.[ValorDocumentoIdentidad]
+END;
+GO	
+
+
+CREATE PROCEDURE GetBeneficiariosDeCliente (@Identificacion varchar(32))
+AS
+BEGIN
+
+	DECLARE @IdCliente int;
+	SELECT @IdCliente = P.ID
 	FROM [dbo].[Persona] P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion;
 
@@ -306,13 +245,14 @@ BEGIN
 		Activo
 	)
 	SELECT
-		B.ValorDocumentoIdentidadBeneficiario,
+		P.ValorDocumentoIdentidad,
 		B.NumeroCuenta,
-		B.ValorParentesco,
+		B.IdParentesco,
 		B.Porcentaje,
 		B.Activo
-	FROM [dbo].[Beneficiario] B
-	WHERE B.IdentificacionCliente=@IdCliente AND Activo=1
+	FROM [dbo].[Beneficiario] B, [dbo].[Persona] P
+	WHERE B.IdCliente=@IdCliente
+		AND B.IdBeneficiario=P.ID
 	
 	SELECT
 		T.Identificacion,
@@ -328,30 +268,6 @@ BEGIN
 	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
 END;
 GO	
-
-
-CREATE PROCEDURE GetUsuariosPuedeVer(@Usuario varchar(16))
-AS
-BEGIN
-	SELECT [NumeroCuenta] FROM [dbo].[UsuarioPuedeVer]
-END;
-GO
-
-
-CREATE PROCEDURE GetCliente(@Identificacion varchar(32))
-AS
-BEGIN
-	SELECT * FROM [dbo].[Persona] WHERE [ValorDocumentoIdentidad]=@Identificacion
-END;
-GO
-
-
-CREATE PROCEDURE GetCuenta(@NumeroCuenta varchar(32))
-AS
-BEGIN
-	SELECT * FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta
-END;
-GO
 
 
 CREATE PROCEDURE GetBeneficiario (@Identificacion varchar(32))
@@ -379,11 +295,12 @@ BEGIN
 	SELECT
 		@Identificacion,
 		B.NumeroCuenta,
-		B.ValorParentesco,
+		B.IdParentesco,
 		B.Porcentaje,
 		B.Activo
-	FROM [dbo].[Beneficiario] B
-	WHERE B.ValorDocumentoIdentidadBeneficiario=@Identificacion
+	FROM [dbo].[Beneficiario] B, [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion
+		AND B.IdBeneficiario=P.ID
 	
 	SELECT
 		T.Identificacion,
@@ -400,62 +317,6 @@ BEGIN
 END;
 GO	
 
-
-CREATE PROCEDURE GetCuentasDeCliente(@Identificacion varchar(32))
-AS
-BEGIN
-	DECLARE @IdCliente int;
-	SELECT @IdCliente = P.IdPersona
-	FROM [dbo].[Persona] P
-	WHERE P.ValorDocumentoIdentidad=@Identificacion;
-	
-	SELECT * FROM [dbo].[CuentaAhorro] WHERE [IdentificacionCliente]=@IdCliente
-END;
-GO
-
---VALIDACION
-
-CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
-AS
-BEGIN
-	DECLARE @Tabla TABLE (Resultado int)
-
-	IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
-		IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
-			INSERT INTO @Tabla(Resultado) SELECT 1
-		ELSE
-			INSERT INTO @Tabla(Resultado) SELECT 0
-	ELSE
-		INSERT INTO @Tabla(Resultado) SELECT 0
-	
-	SELECT * FROM @Tabla
-END;
-GO
-
---PARA ADMIN
-
-CREATE PROCEDURE GetTodosClientes
-AS
-BEGIN
-	SELECT * FROM [dbo].[Persona]
-END;
-GO
-
-
-CREATE PROCEDURE GetTodosParentescos
-AS
-BEGIN
-	SELECT * FROM [dbo].[Parentesco]
-END;
-GO
-
-
-CREATE PROCEDURE GetTodasCuentas
-AS
-BEGIN
-	SELECT * FROM [dbo].[CuentaAhorro]
-END;
-GO
 
 CREATE PROCEDURE GetTodosBeneficiarios
 AS
@@ -480,12 +341,14 @@ BEGIN
 		Activo
 	)
 	SELECT
-		B.ValorDocumentoIdentidadBeneficiario,
+		P.ValorDocumentoIdentidad,
 		B.NumeroCuenta,
-		B.ValorParentesco,
+		B.IdParentesco,
 		B.Porcentaje,
 		B.Activo
-	FROM [dbo].[Beneficiario] B
+	FROM [dbo].[Beneficiario] B, [dbo].[Persona] P
+	WHERE P.ID=B.IdBeneficiario
+
 	
 	SELECT
 		T.Identificacion,
@@ -502,7 +365,57 @@ BEGIN
 END;
 GO
 
---PRUEBA
+
+-- CLIENTES
+
+CREATE PROCEDURE GetCliente(@Identificacion varchar(32))
+AS
+BEGIN
+	SELECT * FROM [dbo].[Persona] WHERE [ValorDocumentoIdentidad]=@Identificacion
+END;
+GO
+
+
+CREATE PROCEDURE GetTodosClientes
+AS
+BEGIN
+	SELECT * FROM [dbo].[Persona]
+END;
+GO
+
+
+-- CUENTAS
+
+CREATE PROCEDURE GetCuenta(@NumeroCuenta varchar(32))
+AS
+BEGIN
+	SELECT * FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta
+END;
+GO
+
+
+CREATE PROCEDURE GetCuentasDeCliente(@Identificacion varchar(32))
+AS
+BEGIN
+	DECLARE @IdCliente int;
+	SELECT @IdCliente = P.ID
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+	
+	SELECT * FROM [dbo].[CuentaAhorro] WHERE IdCliente=@IdCliente
+END;
+GO
+
+
+CREATE PROCEDURE GetTodasCuentas
+AS
+BEGIN
+	SELECT * FROM [dbo].[CuentaAhorro]
+END;
+GO
+
+
+-- USUARIOS
 
 CREATE PROCEDURE GetTodosUsuarios
 AS
@@ -514,12 +427,75 @@ GO
 CREATE PROCEDURE GetUser (@Identificacion varchar(32))
 AS
 BEGIN 
-	SELECT * FROM [dbo].[Usuario] WHERE [ValorDocumentoIdentidad] =	@Identificacion
+
+	DECLARE @IdUser int;
+	SELECT @IdUser=P.ID
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@Identificacion
+
+
+	SELECT * FROM [dbo].[Usuario] WHERE IdPersona =	@IdUser
 END;
 GO
 
---PRUEBA
+
+CREATE PROCEDURE GetUsuariosPuedeVer(@Usuario varchar(16))
+AS
+BEGIN
+	SELECT C.[NumeroCuenta] 
+	FROM [dbo].[UsuarioPuedeVer] U, [dbo].[CuentaAhorro] C
+	WHERE U.IdCuentaAhorro=C.ID
+END;
+GO
 
 
+-- PORCENTAJES
+
+CREATE PROCEDURE GetTotalPorcentajes (@Identificacion varchar(32))
+AS
+BEGIN
+		DECLARE @IdCliente int;
+		SELECT @IdCliente = P.ID
+		FROM [dbo].[Persona] P
+		WHERE P.ValorDocumentoIdentidad=@Identificacion;
+
+	SELECT SUM ([Porcentaje]) FROM [dbo].[Beneficiario] WHERE IdCliente=@IdCliente
+END;
+GO
 
 
+-- PARENTESCOS
+
+CREATE PROCEDURE GetTodosParentescos
+AS
+BEGIN
+	SELECT * FROM [dbo].[Parentesco]
+END;
+GO
+
+
+--VALIDACION
+
+CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
+AS
+BEGIN
+	DECLARE @Tabla TABLE (Resultado int, userId VARCHAR(32))
+
+	IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Usuario=Nombre)
+		IF EXISTS (SELECT * FROM [dbo].[Usuario] WHERE @Pass=Contrasena)
+		BEGIN
+			INSERT INTO @Tabla(Resultado,userId) 
+			SELECT 
+			1,
+			P.ValorDocumentoIdentidad 
+			FROM [dbo].[Usuario] U, [dbo].[Persona] P
+			WHERE @Pass=Contrasena AND U.IdPersona=P.ID
+		END
+		ELSE
+			INSERT INTO @Tabla(Resultado) SELECT 0
+	ELSE
+		INSERT INTO @Tabla(Resultado) SELECT 0
+	
+	SELECT * FROM @Tabla
+END;
+GO

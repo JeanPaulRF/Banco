@@ -7,23 +7,23 @@ GO
 --TABLAS
 --Catalogo
 CREATE TABLE dbo.TipoIdentidad(
-	IdTipoIdentidad int not null,
+	ID int not null,
 	Nombre varchar(32) not null,
 	
-	CONSTRAINT pk_TipoIdentidad PRIMARY KEY (IdTipoIdentidad)
+	CONSTRAINT pk_TipoIdentidad PRIMARY KEY (ID)
 );
 
 CREATE TABLE dbo.Parentesco(
-	IdParentesco int not null,
+	ID int not null,
 	Nombre varchar(64) not null,
 	
-	CONSTRAINT pk_Parentesco PRIMARY KEY (IdParentesco)
+	CONSTRAINT pk_Parentesco PRIMARY KEY (ID)
 );
 
 CREATE TABLE dbo.TipoCuentaAhorro(
-	IdTipoCuentaAhorro int not null,
+	ID int not null,
 	Nombre varchar(32) not null,
-	IdTipoMoneda int not null,
+	IdMoneda int not null,
 	SaldoMinimo money not null,
 	MultaSaldoMin money not null,
 	CargoAnual int not null,
@@ -33,120 +33,118 @@ CREATE TABLE dbo.TipoCuentaAhorro(
 	ComisionAutomatico int not null,
 	Interes int not null,
 	
-	CONSTRAINT pk_TipoCuentaAhorro PRIMARY KEY (IdTipoCuentaAhorro)
+	CONSTRAINT pk_TipoCuentaAhorro PRIMARY KEY (ID)
 );
 
 CREATE TABLE dbo.Moneda(
-	IdMoneda int not null,
+	ID int not null,
 	Nombre varchar(16) not null,
 
-	CONSTRAINT pk_Moneda PRIMARY KEY (IdMoneda)
+	CONSTRAINT pk_Moneda PRIMARY KEY (ID)
 );
 
 
 --No Catalogodbo.
 CREATE TABLE dbo.Persona(
-	IdPersona int IDENTITY(1,1),
+	ID int IDENTITY(1,1),
 	Nombre varchar(64) not null,
 	ValorDocumentoIdentidad varchar(32) not null,
-	TipoIdentidad int not null,
+	IdTipoIdentidad int not null,
 	FechaDeNacimiento varchar(32) not null,
 	Email varchar(32) not null,
 	Telefono1 int not null,
 	Telefono2 int not null,
 	
-	CONSTRAINT pk_Persona PRIMARY KEY (IdPersona),
+	CONSTRAINT pk_Persona PRIMARY KEY (ID),
 );
 
 CREATE TABLE dbo.CuentaAhorro(
-	IdCuentaAhorro int IDENTITY(1,1),
-	IdentificacionCliente int not null,
+	ID int IDENTITY(1,1),
+	IdCliente int not null,
 	NumeroCuenta varchar(32) not null,   
 	Saldo money not null,
 	FechaConstitucion varchar(32) not null,
-	ValorDocumentoIdentidadCliente varchar(32) not null,
-	TipoCuenta int not null,
+	IdTipoCuentaAhorro int not null,
 	
-	CONSTRAINT pk_CuentaAhorro PRIMARY KEY (IdCuentaAhorro)
+	CONSTRAINT pk_CuentaAhorro PRIMARY KEY (ID)
 );
+
 
 CREATE TABLE dbo.Beneficiario(
-	IdBeneficiario int IDENTITY(1,1),
-	IdentificacionCliente int not null,
-	IdentificacionCuenta int not null,
+	ID int IDENTITY(1,1),
+	IdCliente int not null,
+	IdCuentaAhorro int not null,
 	NumeroCuenta varchar(32) not null,
 	Porcentaje int not null,
-	ValorDocumentoIdentidadBeneficiario varchar(32) not null,
-	ValorParentesco int not null,
-	Activo bit DEFAULT (1),
+	IdBeneficiario int not null,
+	IdParentesco int not null,
+	Activo bit DEFAULT (1) not null,
 	FechaDesactivacion varchar(32),
 
-	CONSTRAINT pk_Beneficiario PRIMARY KEY (IdBeneficiario)
+	CONSTRAINT pk_Beneficiario PRIMARY KEY (ID)
 );
 
---alter table beneficiario add Activo bit DEFAULT (1)
---alter table beneficiario add FechaDesactivacion date
 
 CREATE TABLE dbo.Usuario(
-	IdUsuario int IDENTITY(1,1),
+	ID int IDENTITY(1,1),
 	Nombre varchar(16) not null,
-	ValorDocumentoIdentidad varchar(32) not null,
+	IdPersona int not null,
 	Contrasena varchar(32) not null,
 	Administrador bit not null,
 	
-	CONSTRAINT pk_Usuario PRIMARY KEY (IdUsuario)
+	CONSTRAINT pk_Usuario PRIMARY KEY (ID)
 );
 
 CREATE TABLE dbo.UsuarioPuedeVer(
-	IdUsuarioPuedeVer int IDENTITY(1,1),
-	IdentificacionCuenta int not null,
-	IdentificacionUsuario int not null,
-	Nombre varchar(16) not null,
-	NumeroCuenta varchar(32) not null,
+	ID int IDENTITY(1,1),
+	IdCuentaAhorro int not null,
+	IdPersona int not null,
+	Nombre varchar(16) not null, 
 	
-	CONSTRAINT pk_UsuarioPuedeVer PRIMARY KEY (IdUsuarioPuedeVer)
+	CONSTRAINT pk_UsuarioPuedeVer PRIMARY KEY (ID)
 );
+
 
 -- FKs
 --TipoCuentaAhorro-Moneda
 ALTER TABLE dbo.TipoCuentaAhorro 
-	ADD CONSTRAINT fk_TipoCuentaAhorro_Moneda FOREIGN KEY (IdTipoMoneda) 
-	REFERENCES dbo.Moneda (IdMoneda);
+	ADD CONSTRAINT fk_TipoCuentaAhorro_Moneda FOREIGN KEY (IdMoneda) 
+	REFERENCES dbo.Moneda (ID);
 
 -- Persona-TipoIdentidad
 ALTER TABLE dbo.Persona 
-	ADD CONSTRAINT fk_Persona_TipoIdentidad FOREIGN KEY (TipoIdentidad) 
-	REFERENCES dbo.TipoIdentidad (IdTipoIdentidad);
+	ADD CONSTRAINT fk_Persona_TipoIdentidad FOREIGN KEY (IdTipoIdentidad) 
+	REFERENCES dbo.TipoIdentidad (ID);
 
 -- CuentaAhorro-TipoCuentaAhorro
 ALTER TABLE dbo.CuentaAhorro 
-	ADD CONSTRAINT fk_CuentaAhorro_TipoCuentaAhorro FOREIGN KEY (TipoCuenta) 
-	REFERENCES dbo.TipoCuentaAhorro (IdTipoCuentaAhorro);
+	ADD CONSTRAINT fk_CuentaAhorro_TipoCuentaAhorro FOREIGN KEY (IdTipoCuentaAhorro) 
+	REFERENCES dbo.TipoCuentaAhorro (ID);
 -- CuentaAhorro-Persona
 ALTER TABLE dbo.CuentaAhorro 
-	ADD CONSTRAINT fk_CuentaAhorro_Persona FOREIGN KEY (IdentificacionCliente) 
-	REFERENCES dbo.Persona (IdPersona); 
+	ADD CONSTRAINT fk_CuentaAhorro_Persona FOREIGN KEY (IdCliente) 
+	REFERENCES dbo.Persona (ID); 
 
 
 -- Beneficiario-Persona
 ALTER TABLE dbo.Beneficiario 
-	ADD CONSTRAINT fk_Beneficiario_Persona FOREIGN KEY (IdentificacionCliente) 
-	REFERENCES dbo.Persona (IdPersona);
+	ADD CONSTRAINT fk_Beneficiario_Persona FOREIGN KEY (IdCliente) 
+	REFERENCES dbo.Persona (ID);
 -- Beneficiario-CuentaAhorros
 ALTER TABLE dbo.Beneficiario 
-	ADD CONSTRAINT fk_Beneficiario_CuentaAhorro FOREIGN KEY (IdentificacionCuenta) 
-	REFERENCES CuentaAhorro (IdCuentaAhorro);
+	ADD CONSTRAINT fk_Beneficiario_CuentaAhorro FOREIGN KEY (IdCuentaAhorro) 
+	REFERENCES CuentaAhorro (ID);
 -- Beneficiario-Parentesco
 ALTER TABLE dbo.Beneficiario 
-	ADD CONSTRAINT fk_CuentaAhorro_Beneficiario FOREIGN KEY (ValorParentesco) 
-	REFERENCES dbo.Parentesco (IdParentesco);
+	ADD CONSTRAINT fk_CuentaAhorro_Beneficiario FOREIGN KEY (IdParentesco) 
+	REFERENCES dbo.Parentesco (ID);
 
 
 -- UsuarioPuedeVer-Usuario
 ALTER TABLE dbo.UsuarioPuedeVer 
-	ADD CONSTRAINT fk_UsuarioPuedeVer_Usuario FOREIGN KEY (IdentificacionUsuario) 
-	REFERENCES dbo.Usuario (IdUsuario);
+	ADD CONSTRAINT fk_UsuarioPuedeVer_Usuario FOREIGN KEY (IdPersona) 
+	REFERENCES dbo.Usuario (ID);
 -- UsuarioPuedeVer-CuentaAhorro
 ALTER TABLE dbo.UsuarioPuedeVer 
-	ADD CONSTRAINT fk_UsuarioPuedeVer_CuentaAhorros FOREIGN KEY (IdentificacionCuenta) 
-	REFERENCES dbo.CuentaAhorro (IdCuentaAhorro);
+	ADD CONSTRAINT fk_UsuarioPuedeVer_CuentaAhorros FOREIGN KEY (IdCuentaAhorro) 
+	REFERENCES dbo.CuentaAhorro (ID);

@@ -1,22 +1,22 @@
-
---SELECT * FROM [dbo].[Parentesco]
+USE BANCO
+GO
 
 DECLARE @xmlData XML
 
 SET @xmlData = 
 		(SELECT *
-		FROM OPENROWSET(BULK 'C:\Archivos\DatosTarea-1-V2.xml', SINGLE_BLOB) 
+		FROM OPENROWSET(BULK 'C:\Archivos\DatosTarea-2.xml', SINGLE_BLOB) 
 		AS xmlData);
 
 
-INSERT INTO [dbo].[TipoIdentidad]([IdTipoIdentidad], [Nombre])
+INSERT INTO [dbo].[TipoIdentidad]([ID], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)')
 FROM @xmlData.nodes('Datos/Tipo_Doc/TipoDocuIdentidad') as T(Item)
 
 
-INSERT INTO [dbo].[Moneda]([IdMoneda], [Nombre])
+INSERT INTO [dbo].[Moneda]([ID], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(16)')
@@ -24,9 +24,9 @@ FROM @xmlData.nodes('Datos/Tipo_Moneda/TipoMoneda') as T(Item)
 
 
 INSERT INTO [dbo].[TipoCuentaAhorro]
-	([IdTipoCuentaAhorro], 
+	([ID], 
 	[Nombre],
-	[IdTipoMoneda],
+	[IdMoneda],
 	[SaldoMinimo],
 	[MultaSaldoMin],
 	[CargoAnual],
@@ -50,7 +50,7 @@ SELECT
 FROM @xmlData.nodes('Datos/Tipo_Cuenta_Ahorros/TipoCuentaAhorro') as T(Item)
 
 
-INSERT INTO [dbo].[Parentesco]([IdParentesco], [Nombre])
+INSERT INTO [dbo].[Parentesco]([ID], [Nombre])
 SELECT  
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)')
