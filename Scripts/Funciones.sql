@@ -3,7 +3,7 @@ GO
 
 
 --FUNCIONES BASICAS DE BENEFICIARIO
-CREATE PROCEDURE InsertarBeneficiario (
+CREATE PROCEDURE dbo.InsertarBeneficiario (
 	@NumeroCuenta varchar(32),
 	@Identificacion varchar(32),
 	@Parentesco int, 
@@ -82,7 +82,7 @@ END;
 GO
 
 
-CREATE PROCEDURE EditarBeneficiario (
+CREATE PROCEDURE dbo.EditarBeneficiario (
 	@IdentificacionAntigua varchar(32),
 	@Nombre varchar(64),
 	@Identificacion varchar(32),
@@ -126,7 +126,7 @@ END;
 GO
 
 
-CREATE PROCEDURE EliminarBeneficiario (@Identificacion varchar(32), @value int)
+CREATE PROCEDURE dbo.EliminarBeneficiario (@Identificacion varchar(32), @value int)
 AS
 BEGIN
 	DECLARE @CurrentTime DATE=GETDATE();
@@ -147,7 +147,7 @@ END;
 GO
 
 -- SP BENEFICIARIO
-CREATE PROCEDURE GetTotalBeneficiarios (@Identificacion varchar(32))
+CREATE PROCEDURE dbo.GetTotalBeneficiarios (@Identificacion varchar(32))
 AS
 BEGIN
 	DECLARE @IdCliente int;
@@ -162,7 +162,7 @@ END;
 GO
 
 
-CREATE PROCEDURE GetBeneficiariosActivosDeCliente (@Identificacion varchar(32))
+CREATE PROCEDURE dbo.GetBeneficiariosActivosDeCliente (@Identificacion varchar(32))
 AS
 BEGIN
 
@@ -216,7 +216,7 @@ END;
 GO	
 
 
-CREATE PROCEDURE GetBeneficiariosDeCliente (@Identificacion varchar(32))
+CREATE PROCEDURE dbo.GetBeneficiariosDeCliente (@Identificacion varchar(32))
 AS
 BEGIN
 
@@ -270,7 +270,7 @@ END;
 GO	
 
 
-CREATE PROCEDURE GetBeneficiario (@Identificacion varchar(32))
+CREATE PROCEDURE dbo.GetBeneficiario (@Identificacion varchar(32))
 AS
 BEGIN
 	DECLARE @TempBeneficiario TABLE(
@@ -318,7 +318,7 @@ END;
 GO	
 
 
-CREATE PROCEDURE GetTodosBeneficiarios
+CREATE PROCEDURE dbo.GetTodosBeneficiarios
 AS
 BEGIN
 	DECLARE @TempBeneficiario TABLE(
@@ -368,7 +368,7 @@ GO
 
 -- CLIENTES
 
-CREATE PROCEDURE GetCliente(@Identificacion varchar(32))
+CREATE PROCEDURE dbo.GetCliente(@Identificacion varchar(32))
 AS
 BEGIN
 	SELECT * FROM [dbo].[Persona] WHERE [ValorDocumentoIdentidad]=@Identificacion
@@ -376,7 +376,7 @@ END;
 GO
 
 
-CREATE PROCEDURE GetTodosClientes
+CREATE PROCEDURE dbo.GetTodosClientes
 AS
 BEGIN
 	SELECT * FROM [dbo].[Persona]
@@ -386,7 +386,7 @@ GO
 
 -- CUENTAS
 
-CREATE PROCEDURE GetCuenta(@NumeroCuenta varchar(32))
+CREATE PROCEDURE dbo.GetCuenta(@NumeroCuenta varchar(32))
 AS
 BEGIN
 	SELECT * FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta
@@ -394,7 +394,7 @@ END;
 GO
 
 
-CREATE PROCEDURE GetCuentasDeCliente(@Identificacion varchar(32))
+CREATE PROCEDURE dbo.GetCuentasDeCliente(@Identificacion varchar(32))
 AS
 BEGIN
 	DECLARE @IdCliente int;
@@ -407,7 +407,7 @@ END;
 GO
 
 
-CREATE PROCEDURE GetTodasCuentas
+CREATE PROCEDURE dbo.GetTodasCuentas
 AS
 BEGIN
 	SELECT * FROM [dbo].[CuentaAhorro]
@@ -417,14 +417,14 @@ GO
 
 -- USUARIOS
 
-CREATE PROCEDURE GetTodosUsuarios
+CREATE PROCEDURE dbo.GetTodosUsuarios
 AS
 BEGIN
 	SELECT * FROM dbo.Usuario;
 END;
 GO
 
-CREATE PROCEDURE GetUser (@Identificacion varchar(32))
+CREATE PROCEDURE dbo.GetUser (@Identificacion varchar(32))
 AS
 BEGIN 
 
@@ -439,7 +439,7 @@ END;
 GO
 
 
-CREATE PROCEDURE GetUsuariosPuedeVer(@Usuario varchar(16))
+CREATE PROCEDURE dbo.GetUsuariosPuedeVer(@Usuario varchar(16))
 AS
 BEGIN
 	SELECT C.[NumeroCuenta] 
@@ -451,7 +451,7 @@ GO
 
 -- PORCENTAJES
 
-CREATE PROCEDURE GetTotalPorcentajes (@Identificacion varchar(32))
+CREATE PROCEDURE dbo.GetTotalPorcentajes (@Identificacion varchar(32))
 AS
 BEGIN
 		DECLARE @IdCliente int;
@@ -466,7 +466,7 @@ GO
 
 -- PARENTESCOS
 
-CREATE PROCEDURE GetTodosParentescos
+CREATE PROCEDURE dbo.GetTodosParentescos
 AS
 BEGIN
 	SELECT * FROM [dbo].[Parentesco]
@@ -476,7 +476,7 @@ GO
 
 --VALIDACION
 
-CREATE PROCEDURE ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
+CREATE PROCEDURE dbo.ValidarUsuarioContrasena(@Usuario varchar(16), @Pass varchar(32))
 AS
 BEGIN
 	DECLARE @Tabla TABLE (Resultado int, userId VARCHAR(32))
