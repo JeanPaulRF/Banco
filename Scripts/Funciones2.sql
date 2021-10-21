@@ -133,6 +133,28 @@ GO
 
 
 
+CREATE PROCEDURE dbo.GetCuentasObjetivo(@NumeroCuenta varchar(32))
+AS
+BEGIN
+	DECLARE @IdCuenta int
+	SET @IdCuenta = 
+		(SELECT ID FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta)
+
+	SELECT
+		C.[FechaInicio],
+		C.[FechaFin],
+		C.[Costo],
+		C.[Objetivo],
+		C.[Saldo],
+		C.[InteresAcumulado]
+		C.[Activo]
+	FROM [dbo].[CuentaObjetivo] C
+	WHERE C.[IdCuentaAhorro]=@IdCuenta
+END;
+GO
+
+
+
 CREATE TRIGGER dbo.ActualizarTipoCambio
 ON [dbo].[TipoCambio]
 AFTER INSERT
