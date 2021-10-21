@@ -130,13 +130,24 @@ END;
 GO
 
 
-CREATE PROCEDURE dbo.AplicarMovimiento(
-	@Monto money,
-	@TipoMovimiento int,
-	@NumeroCuenta varchar(32),
-	@IdMoneda int)
+
+
+CREATE TRIGGER dbo.AplicarMovimiento
+ON [dbo].[MovimientoCA]
+AFTER INSERT
 AS
 BEGIN
+	DECLARE
+		@Monto money,
+		@TipoMovimiento int,
+		@NumeroCuenta varchar(32),
+		@IdMoneda int
+
+	SET @Monto = (SELECT Monto FROM Inserted)
+	SET @TipoMovimiento = (SELECT IdTipoMovimientoCA FROM Inserted)
+	SET @NumeroCuenta = (SELECT NumeroCuenta FROM Inserted)
+	SET @IdMoneda = (SELECT IdMoneda FROM Inserted)
+
 	--Si es el mismo tipo de moneda
 	UPDATE [dbo].[CuentaAhorro]
 	SET

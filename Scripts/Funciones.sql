@@ -7,8 +7,7 @@ CREATE PROCEDURE dbo.InsertarBeneficiario (
 	@NumeroCuenta varchar(32),
 	@Identificacion varchar(32),
 	@Parentesco int, 
-	@Porcentaje int
-	)
+	@Porcentaje int)
 AS
 BEGIN
 	IF EXISTS (SELECT * FROM [dbo].[Persona] WHERE [ValorDocumentoIdentidad]=@Identificacion)
@@ -21,8 +20,7 @@ BEGIN
 			[NumeroCuenta], 
 			[Porcentaje],
 			[IdBeneficiario],
-			[IdParentesco]
-			)
+			[IdParentesco])
 		SELECT C.IdCliente,
 			C.ID,
 			C.NumeroCuenta,
@@ -172,22 +170,21 @@ BEGIN
 	DECLARE @TempBeneficiario TABLE(
 		NumeroCuenta varchar(32),
 		Nombre varchar(64),
-		ID varchar(32), 
+		Identificacion varchar(32), 
 		Parentesco int, 
 		Porcentaje int,
 		FechaNacimiento varchar(32),
 		Email varchar(32),
 		Telefono1 int,
 		Telefono2 int,
-		Activo bit
-	)
+		Activo bit)
+
 	INSERT INTO @TempBeneficiario(
-		ID,
+		Identificacion,
 		NumeroCuenta,
 		Parentesco, 
 		Porcentaje,
-		Activo
-	)
+		Activo)
 	SELECT
 		P.ValorDocumentoIdentidad,
 		B.NumeroCuenta,
@@ -197,9 +194,9 @@ BEGIN
 	FROM [dbo].[Beneficiario] B, [dbo].[Persona] P
 	WHERE B.IdCliente=@IdCliente AND Activo=1
 		AND B.IdBeneficiario=P.ID
-	
+
 	SELECT
-		T.ID,
+		T.Identificacion,
 		T.NumeroCuenta,
 		T.Parentesco, 
 		T.Porcentaje,
@@ -209,7 +206,7 @@ BEGIN
 		P.[Telefono1],
 		P.[Telefono2],
 		T.Activo
-	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.ID=P.[ValorDocumentoIdentidad]
+	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
 END;
 GO	
 

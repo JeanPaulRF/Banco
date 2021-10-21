@@ -82,7 +82,7 @@ BEGIN
 	WHERE C.IdentidadCliente=P.[ValorDocumentoIdentidad]
 	
 
-
+	------------------
 
 
 	--Insertar Beneficiario
@@ -166,12 +166,7 @@ BEGIN
 	FROM @xmlData.nodes('Datos/FechaOperacion/Movimientos') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
-	--Aplica el movimiento
-	EXEC dbo.AplicarMovimiento(
-		T.Monto,
-		T.IdTipoMovimiento,
-		T.NumeroCuenta,
-		T.IdMoneda)
+	------------------------------
 
 	--Inserta en tabla movimientos
 	INSERT INTO [dbo].[MovimientoCA](
