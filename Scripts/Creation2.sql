@@ -2,7 +2,7 @@ USE [Banco]
 GO
 
 CREATE TABLE dbo.TipoCambio(
-	ID int not null,
+	ID int IDENTITY(1,1) not null,
 	Fecha date not null,
 	CompraTC money not null,
 	VentaTC money not null,
@@ -21,7 +21,7 @@ CREATE TABLE dbo.TipoMovimientoCA(
 
 
 CREATE TABLE dbo.MovimientoCA(
-	ID int not null,
+	ID int IDENTITY(1,1) not null,
 	Fecha date not null,
 	Monto money not null,
 	NuevoSaldo money not null,
@@ -34,7 +34,7 @@ CREATE TABLE dbo.MovimientoCA(
 
 
 CREATE TABLE dbo.EstadoCuenta(
-	ID int not null,
+	ID int IDENTITY(1,1) not null,
 	FechaInicio date not null,
 	FechaFin date not null,
 	SaldoInicial money not null,
@@ -48,7 +48,7 @@ CREATE TABLE dbo.EstadoCuenta(
 
 
 CREATE TABLE dbo.CuentaObjetivo(
-	ID int not null,
+	ID int IDENTITY(1,1) not null,
 	FechaInicio date not null,
 	FechaFin date not null,
 	Costo money not null,
@@ -56,7 +56,7 @@ CREATE TABLE dbo.CuentaObjetivo(
 	Saldo money  not null,
 	InteresAcumulado int not null,
 	IdCuentaAhorro int not null,
-	Activo bit not null,
+	Activo bit DEFAULT(1) not null,
 
 	CONSTRAINT pk_CuentaObjetivo PRIMARY KEY (ID)
 );

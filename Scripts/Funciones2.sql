@@ -29,14 +29,16 @@ BEGIN
 				[Objetivo],
 				[Saldo],
 				[InteresAcumulado],
-				[IdCuentaAhorro])
+				[IdCuentaAhorro]),
+				[Activo]
 			SELECT
 				@FechaInicio,
 				@FechaFin,
 				@Costo,
 				@Objetivo,
 				@Interes,
-				@IdCuenta
+				@IdCuenta,
+				1
 		COMMIT TRANSACTION T1
 	 END TRY
 	 BEGIN CATCH
@@ -131,6 +133,20 @@ GO
 
 
 
+CREATE TRIGGER dbo.ActualizarTipoCambio
+ON [dbo].[TipoCambio]
+AFTER INSERT
+AS
+BEGIN
+	DECLARE @IdTipoCambio int
+	SET @IdTipoCambio = (SELECT ID FROM Inserted)
+
+	UPDATE [dbo].[Moneda]
+	SET [IdTipoCambioFinal]=@IdTipoCambio
+END;
+GO
+
+
 
 CREATE TRIGGER dbo.AplicarMovimiento
 ON [dbo].[MovimientoCA]
@@ -141,11 +157,13 @@ BEGIN
 		@Monto money,
 		@TipoMovimiento int,
 		@NumeroCuenta varchar(32),
-		@IdMoneda int
+		@IdMoneda int,
+		@IdCuenta int
 
-	SET @Monto = (SELECT Monto FROM Inserted)
+	SET @IdCuenta = (SELECT IdCuentaAhorro FROM Inserted)
+	SET @Monto = (SELECT Monto FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
 	SET @TipoMovimiento = (SELECT IdTipoMovimientoCA FROM Inserted)
-	SET @NumeroCuenta = (SELECT NumeroCuenta FROM Inserted)
+	SET @NumeroCuenta = (SELECT NumeroCuenta FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
 	SET @IdMoneda = (SELECT IdMoneda FROM Inserted)
 
 	--Si es el mismo tipo de moneda
@@ -181,11 +199,16 @@ BEGIN
 				AND @IdMoneda = 1 --Si el movimiento es en dolares
 					AND M.ID = M2.[IdTipoCambioFinal]
 
+	UPDATE [dbo].[MovimientoCA]
+	SET NuevoSaldo=C.Saldo
+	FROM [dbo].[CuentaAhorro] C
+	WHERE C.ID=@IdCuenta
+		
 END;
 GO
 
 
-CREATE TRIGGER CrearEstadoCuenta
+CREATE TRIGGER dbo.CrearEstadoCuenta
 ON [dbo].[CuentaAhorro]
 AFTER INSERT
 AS
@@ -223,7 +246,7 @@ END;
 GO
 
 
-CREATE TRIGGER ActualizarEstadoCuenta
+CREATE TRIGGER dbo.ActualizarEstadoCuenta
 ON [dbo].[MovimientoCA]
 AFTER INSERT
 AS
@@ -248,5 +271,15 @@ BEGIN
 			WHERE ID=@IdMovimiento
 		END
 	END
+END;
+GO
+
+
+CREATE TRIGGER dbo.CheckearEstadoCuenta
+ON [dbo].[MovimientoCA]
+AFTER INSERT
+AS
+BEGIN
+	
 END;
 GO

@@ -82,9 +82,6 @@ BEGIN
 	WHERE C.IdentidadCliente=P.[ValorDocumentoIdentidad]
 	
 
-	------------------
-
-
 	--Insertar Beneficiario
 	DECLARE @TempBeneficiario TABLE
 		(NumeroCuenta varchar(32),
@@ -182,8 +179,11 @@ BEGIN
 		C.Saldo,
 		C.ID,
 		C.IdTipoCuentaAhorro
-	FROM @TempMovimientos T, [dbo].[CuentaAhorro] C
+	FROM @TempMovimientos T, [dbo].[CuentaAhorro] C, [dbo].[EstadoCuenta] E
 	WHERE T.NumeroCuenta = C.NumeroCuenta
+		AND E.[IdCuentaAhorro] = C.ID
+			AND E.[FechaFin] >= @fechaInicial
+
 
 
 	..... Procesar movimientos .. idem (incluye modificar saldos y valores en el estado de cuenta). 

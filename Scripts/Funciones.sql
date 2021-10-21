@@ -393,11 +393,18 @@ CREATE PROCEDURE dbo.GetCuentasDeCliente(@Identificacion varchar(32))
 AS
 BEGIN
 	DECLARE @IdCliente int;
-	SELECT @IdCliente = P.ID
+	SET @IdCliente = 
+	(SELECT P.ID
 	FROM [dbo].[Persona] P
-	WHERE P.ValorDocumentoIdentidad=@Identificacion;
+	WHERE P.ValorDocumentoIdentidad=@Identificacion)
 	
-	SELECT * FROM [dbo].[CuentaAhorro] WHERE IdCliente=@IdCliente
+	SELECT 
+		P.ValorDocumentoIdentidad as Identificacion,
+		C.NumeroCuenta as NumeroCuenta,
+		C.FechaConstitucion as FechaConstitucion,
+		C.IdTipoCuentaAhorro as TipoCuentaAhorro
+	FROM [dbo].[CuentaAhorro] C, [dbo].[Persona] P
+	WHERE P.ID=@IdCliente AND C.IdCliente=@IdCliente
 END;
 GO
 
