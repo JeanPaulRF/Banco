@@ -10,10 +10,6 @@ CREATE TABLE dbo.TipoCambio(
 
 	CONSTRAINT pk_TipoCambio PRIMARY KEY (ID)
 );
-USE [Banco]
-GO
-
-ALTER TABLE [dbo].[Moneda] ADD IdTipoCambioFinal int;
 
 
 CREATE TABLE dbo.TipoMovimientoCA(
@@ -44,6 +40,8 @@ CREATE TABLE dbo.EstadoCuenta(
 	SaldoInicial money not null,
 	SaldoFinal money not null,
 	IdCuentaAhorro int not null,
+	QOperacionesHumano int not null,
+	QOperacionesATM int not null
 
 	CONSTRAINT pk_EstadoCuenta PRIMARY KEY (ID)
 );
@@ -67,6 +65,7 @@ CREATE TABLE dbo.CuentaObjetivo(
 ALTER TABLE dbo.TipoCambio
 	ADD CONSTRAINT fk_TipoCambio_Moneda FOREIGN KEY (IdMoneda) 
 	REFERENCES dbo.Moneda (ID);
+
 
 ALTER TABLE dbo.Moneda
 	ADD CONSTRAINT fk_Moneda_TipoCambio FOREIGN KEY (IdTipoCambioFinal) 

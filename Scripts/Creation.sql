@@ -39,6 +39,7 @@ CREATE TABLE dbo.TipoCuentaAhorro(
 CREATE TABLE dbo.Moneda(
 	ID int not null,
 	Nombre varchar(16) not null,
+	IdTipoCambioFinal int
 
 	CONSTRAINT pk_Moneda PRIMARY KEY (ID)
 );
