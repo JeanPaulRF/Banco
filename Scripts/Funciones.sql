@@ -81,7 +81,6 @@ BEGIN
 END;
 GO
 
-
 CREATE PROCEDURE dbo.EditarBeneficiario (
 	@IdentificacionAntigua varchar(32),
 	@Nombre varchar(64),
@@ -91,17 +90,15 @@ CREATE PROCEDURE dbo.EditarBeneficiario (
 	@FechaNacimiento varchar(32),
 	@Email varchar(32),
 	@Telefono1 int,
-	@Telefono2 int
-	)
+	@Telefono2 int)
 AS
 BEGIN
-
 	SELECT CAST(@FechaNacimiento AS date) AS dataconverted;
 
-	DECLARE @IdBuscado2 int;
-	SELECT @IdBuscado2 = B.ID
-	FROM [dbo].[Persona] B
-	WHERE B.ValorDocumentoIdentidad=@IdentificacionAntigua;
+	DECLARE @IdPersona int;
+	SELECT @IdPersona = P.ID
+	FROM [dbo].[Persona] P
+	WHERE P.ValorDocumentoIdentidad=@IdentificacionAntigua;
 
 	UPDATE [dbo].[Persona]
 	SET [Nombre]=@Nombre,
@@ -110,20 +107,20 @@ BEGIN
 		[Email]=@Email,
 		[Telefono1]=@Telefono1,
 		[Telefono2]=@Telefono2
-	WHERE [ID]=@IdBuscado2
-
-	DECLARE @IdBuscado int;
-	SELECT @IdBuscado = B.ID
-	FROM [dbo].[Beneficiario] B
-	WHERE B.IdBeneficiario=@IdentificacionAntigua;
+	WHERE [ID]=@IdPersona
 
 	UPDATE [dbo].[Beneficiario]
 	SET [Porcentaje]=@Porcentaje,
-		[IdBeneficiario]=@Identificacion,
 		[IdParentesco]=@Parentesco
-	WHERE [ID]=@IdBuscado
+	WHERE [IdBeneficiario]=@IdPersona
+
+	SELECT * FROM [dbo].[Persona] WHERE ID=@IdPersona
+	SELECT * FROM [dbo].[Beneficiario] WHERE IdBeneficiario=@IdPersona
 END;
 GO
+--USE BANCO
+--GO
+--EXEC dbo.EditarBeneficiario '12738545', 'OSVALDO', '777', 1, 100, '2000-01-01', 'HI', '0','0'
 
 
 CREATE PROCEDURE dbo.EliminarBeneficiario (@Identificacion varchar(32), @value int)
@@ -134,7 +131,7 @@ BEGIN
 	DECLARE @IdBen int;
 	SELECT @IdBen=P.ID
 	FROM [dbo].[Persona] P
-	WHERE P.ID = @Identificacion
+	WHERE P.ValorDocumentoIdentidad = @Identificacion
 
 	UPDATE [dbo].[Beneficiario]
 	SET [Activo]=@value,
@@ -145,6 +142,7 @@ BEGIN
 	SELECT * FROM Beneficiario
 END;
 GO
+
 
 -- SP BENEFICIARIO
 CREATE PROCEDURE dbo.GetTotalBeneficiarios (@Identificacion varchar(32))

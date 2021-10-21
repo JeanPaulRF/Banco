@@ -57,7 +57,7 @@ INSERT INTO [dbo].[Usuario](
 	[Administrador])
 SELECT 
 	T.Nombre,
-	T.Adim,
+	T.Contrasena,
 	P.ID,
 	T.Adim
 FROM [dbo].[Persona] P, @TempUser T
