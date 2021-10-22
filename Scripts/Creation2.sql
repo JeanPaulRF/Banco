@@ -15,6 +15,7 @@ CREATE TABLE dbo.TipoCambio(
 CREATE TABLE dbo.TipoMovimientoCA(
 	ID int not null,
 	Nombre varchar(64) not null,
+	Operacion int not null
 
 	CONSTRAINT pk_TipoMovimientoCA PRIMARY KEY (ID)
 );
@@ -41,7 +42,8 @@ CREATE TABLE dbo.EstadoCuenta(
 	SaldoFinal money not null,
 	IdCuentaAhorro int not null,
 	QOperacionesHumano int not null,
-	QOperacionesATM int not null
+	QOperacionesATM int not null,
+	Activo bit DEFAULT(1) not null
 
 	CONSTRAINT pk_EstadoCuenta PRIMARY KEY (ID)
 );

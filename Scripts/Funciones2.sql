@@ -7,6 +7,7 @@ CREATE PROCEDURE InsertarCuentaObjetivo(
 	@FechaFin varchar(32),
 	@Costo money,
 	@Objetivo varchar(64),
+	@Saldo money,
 	@Interes int,
 	@outCodeResult int OUTPUT)
 AS
@@ -29,16 +30,15 @@ BEGIN
 				[Objetivo],
 				[Saldo],
 				[InteresAcumulado],
-				[IdCuentaAhorro]),
-				[Activo]
+				[IdCuentaAhorro])
 			SELECT
 				@FechaInicio,
 				@FechaFin,
 				@Costo,
 				@Objetivo,
+				@Saldo,
 				@Interes,
-				@IdCuenta,
-				1
+				@IdCuenta
 		COMMIT TRANSACTION T1
 	 END TRY
 	 BEGIN CATCH
@@ -68,8 +68,8 @@ BEGIN
 		WHERE C.NumeroCuenta=@NumeroCuenta
 
 		BEGIN TRANSACTION T2
-			SELECT CAST(@FechaInicio AS date) AS dataconverted;
-			SELECT CAST(@FechaFin AS date) AS dataconverted;
+			SELECT CAST(@FechaInicio AS date) AS dataconverted
+			SELECT CAST(@FechaFin AS date) AS dataconverted
 
 			UPDATE [dbo].[CuentaObjetivo]
 			SET
@@ -133,27 +133,7 @@ GO
 
 
 
-CREATE PROCEDURE dbo.GetCuentasObjetivo(@NumeroCuenta varchar(32))
-AS
-BEGIN
-	DECLARE @IdCuenta int
-	SET @IdCuenta = 
-		(SELECT ID FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta)
-
-	SELECT
-		C.[FechaInicio],
-		C.[FechaFin],
-		C.[Costo],
-		C.[Objetivo],
-		C.[Saldo],
-		C.[InteresAcumulado]
-		C.[Activo]
-	FROM [dbo].[CuentaObjetivo] C
-	WHERE C.[IdCuentaAhorro]=@IdCuenta
-END;
-GO
-
-
+--TRIGGERS
 
 CREATE TRIGGER dbo.ActualizarTipoCambio
 ON [dbo].[TipoCambio]
@@ -171,8 +151,7 @@ GO
 
 
 CREATE TRIGGER dbo.AplicarMovimiento
-ON [dbo].[MovimientoCA]
-AFTER INSERT
+ON [dbo].[MovimientoCA] AFTER INSERT
 AS
 BEGIN
 	DECLARE
@@ -180,13 +159,15 @@ BEGIN
 		@TipoMovimiento int,
 		@NumeroCuenta varchar(32),
 		@IdMoneda int,
-		@IdCuenta int
+		@IdCuenta int,
+		@IdTipoCuenta int
 
 	SET @IdCuenta = (SELECT IdCuentaAhorro FROM Inserted)
-	SET @Monto = (SELECT Monto FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
+	SET @IdTipoCuenta = (SELECT IdTipoCuentaAhorro FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
+	SET @Monto = (SELECT Monto FROM Inserted)
 	SET @TipoMovimiento = (SELECT IdTipoMovimientoCA FROM Inserted)
-	SET @NumeroCuenta = (SELECT NumeroCuenta FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
-	SET @IdMoneda = (SELECT IdMoneda FROM Inserted)
+	SET @NumeroCuenta = (SELECT C.NumeroCuenta FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
+	SET @IdMoneda = (SELECT T.IdMoneda FROM [dbo].[TipoCuentaAhorro] T WHERE T.ID=@IdTipoCuenta)
 
 	--Si es el mismo tipo de moneda
 	UPDATE [dbo].[CuentaAhorro]
@@ -230,6 +211,7 @@ END;
 GO
 
 
+
 CREATE TRIGGER dbo.CrearEstadoCuenta
 ON [dbo].[CuentaAhorro]
 AFTER INSERT
@@ -242,7 +224,7 @@ BEGIN
 		@QOperacionesHumano int
 
 	SET @FechaInicio = (SELECT [FechaConstitucion] FROM Inserted)
-	SET @FechaFin = dateadd(@FechaInicio, m, 1)
+	SET @FechaFin = dateadd(m, 1, @FechaInicio)
 	SET @SaldoInicial = (SELECT [Saldo] FROM Inserted)
 	SET @SaldoFinal = @SaldoInicial
 	SET @IdCuentaAhorro = (SELECT [ID] FROM Inserted)
@@ -253,6 +235,7 @@ BEGIN
 		[FechaInicio],
 		[FechaFin],
 		[SaldoInicial],
+		[SaldoFinal],
 		[IdCuentaAhorro],
 		[QOperacionesATM],
 		[QOperacionesHumano])
@@ -297,11 +280,54 @@ END;
 GO
 
 
-CREATE TRIGGER dbo.CheckearEstadoCuenta
-ON [dbo].[MovimientoCA]
-AFTER INSERT
+CREATE PROCEDURE dbo.CerrarEstadosCuenta(@Fecha date)
 AS
 BEGIN
-	
+	UPDATE [dbo].[EstadoCuenta]
+	SET Activo=0
+	WHERE [FechaFin]<=@Fecha
+END;
+GO
+
+
+
+--PROCEDURES EXTRA
+
+CREATE PROCEDURE dbo.GetCuentasObjetivo(@NumeroCuenta varchar(32))
+AS
+BEGIN
+	DECLARE @IdCuenta int
+	SET @IdCuenta = 
+		(SELECT ID FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta)
+
+	SELECT
+		C.[FechaInicio],
+		C.[FechaFin],
+		C.[Costo],
+		C.[Objetivo],
+		C.[Saldo],
+		C.[InteresAcumulado],
+		C.[Activo]
+	FROM [dbo].[CuentaObjetivo] C
+	WHERE C.[IdCuentaAhorro]=@IdCuenta
+END;
+GO
+
+
+CREATE PROCEDURE dbo.GetEstadosCuenta(@NumeroCuenta varchar(32)
+AS
+BEGIN
+	DECLARE @IdCuenta int
+	SET @IdCuenta= (SELECT ID FROM [dbo].[CuentaAhorro] WHERE NumeroCuenta=@NumeroCuenta)
+
+	SELECT * FROM [dbo].[EstadoCuenta] WHERE [IdCuentaAhorro]=@IdCuenta
+END;
+GO
+
+
+CREATE PROCEDURE dbo.GetMovimientosDeEstado(@IdEstadoCuenta int)
+AS
+BEGIN
+	SELECT * FROM [dbo].[MovimientoCA] WHERE [IdEstadoCuenta]=@IdEstadoCuenta
 END;
 GO

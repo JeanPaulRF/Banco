@@ -55,3 +55,11 @@ SELECT
 	T.Item.value('@Id', 'INT'),
 	T.Item.value('@Nombre', 'VARCHAR(64)')
 FROM @xmlData.nodes('Datos/Parentezcos/Parentezco') as T(Item)
+
+
+INSERT INTO [dbo].[TipoMovimientoCA]([ID], [Nombre], [Operacion])
+SELECT
+	T.Item.value('@Id', 'INT'),
+	T.Item.value('@Descripcion', 'VARCHAR(64)'),
+	T.Item.value('@Operacion', 'INT')
+FROM @xmlData.nodes('Datos/Tipo_Movimientos/TipoMovimiento') as T(Item)
