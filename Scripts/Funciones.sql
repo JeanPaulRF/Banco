@@ -208,7 +208,8 @@ BEGIN
 		T.Activo
 	FROM @TempBeneficiario T INNER JOIN [dbo].[Persona] P ON T.Identificacion=P.[ValorDocumentoIdentidad]
 END;
-GO	
+GO
+
 
 
 CREATE PROCEDURE dbo.GetBeneficiariosDeCliente (@Identificacion varchar(32))
@@ -361,6 +362,8 @@ END;
 GO
 
 
+
+
 -- CLIENTES
 
 CREATE PROCEDURE dbo.GetCliente(@Identificacion varchar(32))
@@ -389,6 +392,7 @@ END;
 GO
 
 
+
 CREATE PROCEDURE dbo.GetCuentasDeCliente(@Identificacion varchar(32))
 AS
 BEGIN
@@ -407,6 +411,7 @@ BEGIN
 	WHERE P.ID=@IdCliente AND C.IdCliente=@IdCliente
 END;
 GO
+
 
 
 CREATE PROCEDURE dbo.GetTodasCuentas
@@ -501,3 +506,4 @@ BEGIN
 	SELECT * FROM @Tabla
 END;
 GO
+

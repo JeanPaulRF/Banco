@@ -211,7 +211,6 @@ END;
 GO
 
 
-
 CREATE TRIGGER dbo.CrearEstadoCuenta
 ON [dbo].[CuentaAhorro]
 AFTER INSERT
@@ -279,6 +278,10 @@ BEGIN
 END;
 GO
 
+SELECT * FROM Persona WHERE ValorDocumentoIdentidad='117370445'
+
+
+
 
 CREATE PROCEDURE dbo.CerrarEstadosCuenta(@Fecha date)
 AS
@@ -314,7 +317,7 @@ END;
 GO
 
 
-CREATE PROCEDURE dbo.GetEstadosCuenta(@NumeroCuenta varchar(32)
+CREATE PROCEDURE dbo.GetEstadosCuenta(@NumeroCuenta varchar(32))
 AS
 BEGIN
 	DECLARE @IdCuenta int
