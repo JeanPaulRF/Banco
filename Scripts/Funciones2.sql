@@ -1,13 +1,14 @@
 USE BANCO 
 GO
 
+
 CREATE PROCEDURE InsertarCuentaObjetivo(
 	@NumeroCuenta varchar(32),
 	@FechaInicio varchar(32),
 	@FechaFin varchar(32),
-	@Costo money,
+	@Costo int,
 	@Objetivo varchar(64),
-	@Saldo money,
+	@Saldo int,
 	@Interes int,
 	@outCodeResult int OUTPUT)
 AS
@@ -50,6 +51,7 @@ BEGIN
 	 SET NOCOUNT OFF
 END;
 GO
+
 
 
 CREATE PROCEDURE ActualizarCuentaObjetivo(
@@ -133,6 +135,185 @@ GO
 
 
 
+
+
+
+CREATE PROCEDURE dbo.CerrarEstadosCuenta(@Fecha date)
+AS
+BEGIN
+	UPDATE [dbo].[EstadoCuenta]
+	SET Activo=0
+	WHERE [FechaFin]<=@Fecha
+END;
+GO
+
+
+
+CREATE PROCEDURE dbo.InteresSaldoMinimo(
+	@IdCuentaCierre int,
+	@Fecha date,
+	@SaldoMinimoMes money,
+	@Interes money,
+	@IdMoneda int)
+AS
+BEGIN
+	INSERT INTO [dbo].[MovimientoCA](
+		[Descripcion],
+		[Fecha],
+		[Monto],
+		[NuevoSaldo],
+		[IdCuentaAhorro],
+		[IdTipoMovimientoCA],
+		[IdEstadoCuenta],
+		[IdMoneda])
+	SELECT T.Nombre,
+		@Fecha,
+		(@Interes/12)/100*@SaldoMinimoMes,
+		E.SaldoFinal,
+		E.IdCuentaAhorro,
+		13,
+		@IdCuentaCierre,
+		@IdMoneda
+	FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
+	WHERE E.ID=@IdCuentaCierre
+END;
+GO
+
+
+CREATE PROCEDURE dbo.CheckearSaldoMinimo(
+	@IdCuentaCierre int,
+	@Fecha date,
+	@SaldoMinimo money,
+	@MultaSaldoMin money,
+	@IdMoneda int)
+AS
+BEGIN
+	IF (SELECT [SaldoFinal] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) < @SaldoMinimo
+	BEGIN
+		INSERT INTO [dbo].[MovimientoCA](
+			[Descripcion],
+			[Fecha],
+			[Monto],
+			[NuevoSaldo],
+			[IdCuentaAhorro],
+			[IdTipoMovimientoCA],
+			[IdEstadoCuenta],
+			[IdMoneda])
+		SELECT T.Nombre,
+			@Fecha,
+			@MultaSaldoMin,
+			E.SaldoFinal,
+			E.IdCuentaAhorro,
+			17,
+			@IdCuentaCierre,
+			@IdMoneda
+		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
+		WHERE E.ID=@IdCuentaCierre
+	END
+END;
+GO
+
+
+CREATE PROCEDURE dbo.CheckearQOperacionesAutomatico(
+	@IdCuentaCierre int,
+	@Fecha date,
+	@QCajeroAutomatico int,
+	@ComisionAutomatico int,
+	@IdMoneda int)
+AS
+BEGIN
+	IF (SELECT [QOperacionesATM] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) > 0
+	BEGIN
+		INSERT INTO [dbo].[MovimientoCA](
+			[Descripcion],
+			[Fecha],
+			[Monto],
+			[NuevoSaldo],
+			[IdCuentaAhorro],
+			[IdTipoMovimientoCA],
+			[IdEstadoCuenta],
+			[IdMoneda])
+		SELECT T.Nombre,
+			@Fecha,
+			@ComisionAutomatico,
+			E.SaldoFinal,
+			E.IdCuentaAhorro,
+			10,
+			@IdCuentaCierre,
+			@IdMoneda
+		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
+		WHERE E.ID=@IdCuentaCierre
+	END
+END;
+GO
+
+
+CREATE PROCEDURE dbo.CheckearQOperacionesHumano(
+	@IdCuentaCierre int,
+	@Fecha date,
+	@QCajeroHumano int,
+	@ComisionHumano int,
+	@IdMoneda int)
+AS
+BEGIN
+	IF (SELECT [QOperacionesHumano] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) > 0
+	BEGIN
+		INSERT INTO [dbo].[MovimientoCA](
+			[Descripcion],
+			[Fecha],
+			[Monto],
+			[NuevoSaldo],
+			[IdCuentaAhorro],
+			[IdTipoMovimientoCA],
+			[IdEstadoCuenta],
+			[IdMoneda])
+		SELECT T.Nombre,
+			@Fecha,
+			@ComisionHumano,
+			E.SaldoFinal,
+			E.IdCuentaAhorro,
+			9,
+			@IdCuentaCierre,
+			@IdMoneda
+		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
+		WHERE E.ID=@IdCuentaCierre
+	END
+END;
+GO
+
+
+CREATE PROCEDURE dbo.CobrarInteresMensual(
+	@IdCuentaCierre int, 
+	@Fecha date, 
+	@CargoAnual int,
+	@IdMoneda int)
+AS
+BEGIN
+	INSERT INTO [dbo].[MovimientoCA](
+		[Descripcion],
+		[Fecha],
+		[Monto],
+		[NuevoSaldo],
+		[IdCuentaAhorro],
+		[IdTipoMovimientoCA],
+		[IdEstadoCuenta],
+		[IdMoneda])
+	SELECT T.Nombre,
+		@Fecha,
+		@CargoAnual/12,
+		E.SaldoFinal,
+		E.IdCuentaAhorro,
+		12,
+		@IdCuentaCierre,
+		@IdMoneda
+	FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
+	WHERE E.ID=@IdCuentaCierre
+END;
+GO
+
+
+
+
 --TRIGGERS
 
 CREATE TRIGGER dbo.ActualizarTipoCambio
@@ -160,47 +341,55 @@ BEGIN
 		@NumeroCuenta varchar(32),
 		@IdMoneda int,
 		@IdCuenta int,
-		@IdTipoCuenta int
+		@IdTipoCuenta int,
+		@IdMonedaCuenta int
 
 	SET @IdCuenta = (SELECT IdCuentaAhorro FROM Inserted)
 	SET @IdTipoCuenta = (SELECT IdTipoCuentaAhorro FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
 	SET @Monto = (SELECT Monto FROM Inserted)
 	SET @TipoMovimiento = (SELECT IdTipoMovimientoCA FROM Inserted)
 	SET @NumeroCuenta = (SELECT C.NumeroCuenta FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
-	SET @IdMoneda = (SELECT T.IdMoneda FROM [dbo].[TipoCuentaAhorro] T WHERE T.ID=@IdTipoCuenta)
+	SET @IdMoneda = (SELECT IdMoneda FROM Inserted)
+	SET @IdMonedaCuenta = (SELECT C.IdMoneda FROM [dbo].[TipoCuentaAhorro] C WHERE C.ID=@IdTipoCuenta)
 
 	--Si es el mismo tipo de moneda
-	UPDATE [dbo].[CuentaAhorro]
-	SET
-		Saldo=Saldo+(@Monto*(-1^@TipoMovimiento)*-1) --realiza el movimiento
-	FROM [dbo].[TipoCuentaAhorro] C
-	WHERE @NumeroCuenta=[NumeroCuenta] 
-		AND [IdTipoCuentaAhorro]=C.ID --busca el tipo de cuenta ahorro
-			AND  C.[IdMoneda]=@IdMoneda --si es el mismo tipo de moneda
-
-	--Si la cuenta es en Dolares y el movimiento es el Colones
-	UPDATE [dbo].[CuentaAhorro]
-	SET
-		Saldo=Saldo+ ( (@Monto/M.VentaTC) * (-1^@TipoMovimiento) * -1 )  --realiza el movimiento
-	FROM [dbo].[TipoCuentaAhorro] C, 
-		[dbo].[TipoCambio] M, [dbo].[Moneda] M2
-	WHERE @NumeroCuenta=[NumeroCuenta] 
-		AND [IdTipoCuentaAhorro]=C.ID --busca el tipo de cuenta ahorro
-			AND  C.[IdMoneda]= 2 --Si la cuenta es en dolares
-				AND @IdMoneda = 1 --Si el movimiento es en colones
+	IF @IdMoneda=@IdMonedaCuenta
+	BEGIN
+		UPDATE [dbo].[CuentaAhorro]
+		SET
+			Saldo=Saldo+(@Monto*(-1^T.Operacion)*-1) --realiza el movimiento
+		FROM [dbo].[TipoMovimientoCA] T, [dbo].[CuentaAhorro] C
+		WHERE C.ID=@IdCuenta
+			AND @TipoMovimiento=T.ID --busca el tipo de movimiento
+	END ELSE
+	BEGIN
+		--Si la cuenta es en Dolares y el movimiento es el Colones
+		IF @IdMoneda=1 AND @IdMonedaCuenta=2
+		BEGIN
+			UPDATE [dbo].[CuentaAhorro]
+			SET
+				Saldo=Saldo+ ( (@Monto/M.VentaTC) * (-1^T.Operacion) * -1 )  --realiza el movimiento
+			FROM [dbo].[TipoCuentaAhorro] C, [dbo].[TipoMovimientoCA] T,
+				[dbo].[TipoCambio] M, [dbo].[Moneda] M2
+			WHERE C.ID=@IdCuenta
+				AND @TipoMovimiento=T.ID --busca el tipo de movimiento
 					AND M.ID = M2.[IdTipoCambioFinal]
-
-	--Si la cuenta es en Colones y el movimiento es el Dolares
-	UPDATE [dbo].[CuentaAhorro]
-	SET
-		Saldo=Saldo+ ( (@Monto/M.CompraTC) * (-1^@TipoMovimiento) * -1 )  --realiza el movimiento
-	FROM [dbo].[TipoCuentaAhorro] C, 
-		[dbo].[TipoCambio] M, [dbo].[Moneda] M2
-	WHERE @NumeroCuenta=[NumeroCuenta] 
-		AND [IdTipoCuentaAhorro]=C.ID --busca el tipo de cuenta ahorro
-			AND  C.[IdMoneda]= 2 --Si la cuenta es en colones
-				AND @IdMoneda = 1 --Si el movimiento es en dolares
-					AND M.ID = M2.[IdTipoCambioFinal]
+		END ELSE
+		BEGIN
+			--Si la cuenta es en Colones y el movimiento es el Dolares
+			IF @IdMoneda=2 AND @IdMonedaCuenta=1
+			BEGIN
+				UPDATE [dbo].[CuentaAhorro]
+				SET
+					Saldo=Saldo+ ( (@Monto/M.CompraTC) * (-1^@TipoMovimiento) * -1 )  --realiza el movimiento
+				FROM [dbo].[TipoCuentaAhorro] C, [dbo].[TipoMovimientoCA] T,
+					[dbo].[TipoCambio] M, [dbo].[Moneda] M2
+				WHERE C.ID=@IdCuenta
+					AND @TipoMovimiento=T.ID --busca el tipo de movimiento
+						AND M.ID = M2.[IdTipoCambioFinal]
+			END
+		END
+	END
 
 	UPDATE [dbo].[MovimientoCA]
 	SET NuevoSaldo=C.Saldo
@@ -212,23 +401,11 @@ GO
 
 
 CREATE TRIGGER dbo.CrearEstadoCuenta
-ON [dbo].[CuentaAhorro]
-AFTER INSERT
+ON [dbo].[CuentaAhorro] AFTER INSERT
 AS
 BEGIN
-	DECLARE 
-		@FechaInicio date, @FechaFin date,
-		@SaldoInicial money, @SaldoFinal money,
-		@IdCuentaAhorro int, @QOperacionesATM int,
-		@QOperacionesHumano int
-
-	SET @FechaInicio = (SELECT [FechaConstitucion] FROM Inserted)
-	SET @FechaFin = dateadd(m, 1, @FechaInicio)
-	SET @SaldoInicial = (SELECT [Saldo] FROM Inserted)
-	SET @SaldoFinal = @SaldoInicial
-	SET @IdCuentaAhorro = (SELECT [ID] FROM Inserted)
-	SET @QOperacionesATM = 0
-	SET @QOperacionesHumano = 0
+	DECLARE @IdCuenta int
+	SET @IdCuenta = (SELECT ID FROM inserted)
 
 	INSERT INTO [dbo].[EstadoCuenta](
 		[FechaInicio],
@@ -237,15 +414,19 @@ BEGIN
 		[SaldoFinal],
 		[IdCuentaAhorro],
 		[QOperacionesATM],
-		[QOperacionesHumano])
+		[QOperacionesHumano],
+		[SaldoMinimoMes])
 	SELECT
-		@FechaInicio,
-		@FechaFin,
-		@SaldoInicial,
-		@SaldoFinal,
-		@IdCuentaAhorro,
-		@QOperacionesATM,
-		@QOperacionesHumano
+		C.FechaConstitucion,
+		dateadd(m, 1, C.FechaConstitucion),
+		C.Saldo,
+		C.Saldo,
+		@IdCuenta,
+		0,
+		0,
+		C.Saldo
+	FROM [dbo].[CuentaAhorro] C
+	WHERE C.ID=@IdCuenta
 END;
 GO
 
@@ -278,19 +459,8 @@ BEGIN
 END;
 GO
 
-SELECT * FROM Persona WHERE ValorDocumentoIdentidad='117370445'
 
 
-
-
-CREATE PROCEDURE dbo.CerrarEstadosCuenta(@Fecha date)
-AS
-BEGIN
-	UPDATE [dbo].[EstadoCuenta]
-	SET Activo=0
-	WHERE [FechaFin]<=@Fecha
-END;
-GO
 
 
 

@@ -13,10 +13,15 @@ INSERT INTO @FechasProcesar(Fecha)
 SELECT T.Item.value('@Fecha', 'DATE')--<campo del XML para fecha de operacion>
 FROM @xmlData.nodes('Datos/FechaOperacion') as T(Item) --<documento XML>
 
-DECLARE @fechaInicial DATE, @fechaFinal DATE, @DiaCierreEC DATE
+
+DECLARE @fechaInicial DATE, @fechaFinal DATE, @DiaCierreEC int
 DECLARE @CuentasCierran TABLE(Sec int IDENTITY(1,1), IdEstadoCuenta Int)
 DECLARE @TipoOperacion int
 DECLARE @lo1 int, @hi1 int, @IdCuentaCierre int
+
+DECLARE @SaldoMinimo money, @MultaSaldoMin money, @QCajeroAutomatico int, @QCajeroHumano int,
+	@CargoAnual int, @ComisionHumano int, @ComisionAutomatico int, @InteresSaldoMinimo int,
+	@TipoCuentaAhorro int, @SaldoMinimoMes money, @IdMonedaCuenta int
 
 SELECT @fechaInicial=MIN(Fecha), @fechaFinal=MAX(Fecha) FROM @FechasProcesar
 
@@ -60,7 +65,7 @@ BEGIN
 		TipoCuenta)
 	SELECT T.Item.value('@NumeroCuenta','VARCHAR(32)'),
 		T.Item.value('@Saldo','MONEY'),
-		T.Item.value('@FechaCreacion','DATE'),
+		@fechaInicial,
 		T.Item.value('@ValorDocumentoIdentidadDelCliente','VARCHAR(32)'),
 		T.Item.value('@TipoCuentaId','INT')
 	FROM @xmlData.nodes('Datos/FechaOperacion/AgregarCuenta') as T(Item)
@@ -102,7 +107,6 @@ BEGIN
 	FROM @xmlData.nodes('Datos/FechaOperacion/AgregarBeneficiario') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
-
 	-- Mapeo @@TempBeneficiario-Beneficiario
 	INSERT INTO [dbo].[Beneficiario](
 		[IdCliente], 
@@ -131,7 +135,7 @@ BEGIN
 		[IdMoneda])
 	SELECT @fechaInicial,
 		T.Item.value('@Compra','MONEY'),
-		T.Item.value('Venta','MONEY'),
+		T.Item.value('@Venta','MONEY'),
 		1
 	FROM @xmlData.nodes('Datos/FechaOperacion/TipoCambioDolares') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
@@ -173,21 +177,23 @@ BEGIN
 		[NuevoSaldo],
 		[IdCuentaAhorro],
 		[IdTipoMovimientoCA],
-		[IdEstadoCuenta])
+		[IdEstadoCuenta],
+		[IdMoneda])
 	SELECT T.Descripcion,
 		@fechaInicial,
 		T.Monto,
 		C.Saldo,
 		C.ID,
-		C.IdTipoCuentaAhorro,
-		E.ID
+		T.IdTipoMovimiento,
+		E.ID,
+		T.IdMoneda
 	FROM @TempMovimientos T, [dbo].[CuentaAhorro] C, [dbo].[EstadoCuenta] E
 	WHERE T.NumeroCuenta = C.NumeroCuenta
 		AND E.[IdCuentaAhorro] = C.ID
 			AND E.[FechaFin] >= @fechaInicial
 
 	
-	EXEC CerrarEstadosCuenta @fechaInicial
+	EXEC dbo.CerrarEstadosCuenta @fechaInicial
 
 	--.... cargar en tabla variable las cuentas que fueron creada en dia que corresponde a datepart(@fechaInicial, d)
 		 
@@ -196,7 +202,7 @@ BEGIN
 	INSERT @CuentasCierran(IdEstadoCuenta)
 	SELECT C.ID 
 	FROM [dbo].[EstadoCuenta] C 
-	WHERE datepart(d, C.FechaFin)>=@DiaCierreEC
+	WHERE datepart(d, C.FechaInicio)>=@DiaCierreEC
 		 
 	SELECT @lo1=1, @hi1=MAX(Sec) FROM @CuentasCierran
 		 
@@ -204,19 +210,48 @@ BEGIN
 		BEGIN
 			SELECT @IdCuentaCierre=C.IdEstadoCuenta FROM @CuentasCierran C WHERE Sec=@lo1
 
+			SELECT
+				@SaldoMinimo=T.SaldoMinimo,
+				@MultaSaldoMin=T.MultaSaldoMin,
+				@QCajeroAutomatico=T.NumRetirosAutomaticos,
+				@QCajeroHumano=T.NumRetirosHumanos,
+				@CargoAnual=T.CargoAnual,
+				@ComisionAutomatico=T.ComisionAutomatico,
+				@ComisionHumano=T.ComisionHumano,
+				@TipoCuentaAhorro=T.ID,
+				@InteresSaldoMinimo=T.Interes,
+				@SaldoMinimoMes=E.SaldoMinimoMes,
+				@IdMonedaCuenta = C.IdMoneda
+			FROM [dbo].[TipoCuentaAhorro] T, [dbo].[EstadoCuenta] E,
+				[dbo].[TipoCuentaAhorro] C
+			WHERE T.Id=
+			(SELECT [IdTipoCuentaAhorro] FROM [dbo].[CuentaAhorro] WHERE ID=
+			(SELECT [IdCuentaAhorro] FROM [dbo].[EstadoCuenta]))
+				AND E.ID=@IdCuentaCierre AND E.IdCuentaAhorro = C.ID
 
+			--- Calcular intereses respecto del saldo minimo durante el mes, agregar credito por interes 
+			--- ganado y afectar saldo
+			EXEC dbo.InteresSaldoMinimo @IdCuentaCierre, @fechaInicial, @SaldoMinimoMes,
+				@InteresSaldoMinimo, @IdMonedaCuenta
 
-			SELECT * FROM [dbo].[TipoMovimientoCA]
-			
-			-- procesar cierre de Estado de cuenta de @CuentaCierre
-
-			--- Calcular intereses respecto del saldo minimo durante el mes, agregar credito por interes ganado y afectar saldo
 			--- calcular multa por incumplimiento de saldo minimo y agregar movimiento debito y afecta saldo.
+			--Inserta en tabla movimientos
+			EXEC dbo.CheckearSaldoMinimo @IdCuentaCierre, @fechaInicial, @SaldoMinimo,
+				@MultaSaldoMin, @IdMonedaCuenta
+			
 			--- cobro de comision por exceso de operaciones en ATM. Debito
+			EXEC dbo.CheckearQOperacionesAutomatico @IdCuentaCierre, @fechaInicial, @QCajeroAutomatico,
+				@ComisionAutomatico, @IdMonedaCuenta
+			
 			--- cobro de comision por exceso de operaciones en cajero humano. Debito
+			EXEC dbo.CheckearQOperacionesHumano @IdCuentaCierre, @fechaInicial, @QCajeroHumano,
+				@ComisionHumano, @IdMonedaCuenta
+
 			--- cobro de cargos por servicio. Debito.
+			EXEC dbo.CobrarInteresMensual @IdCuentaCierre, @fechaInicial, @CargoAnual,
+				@IdMonedaCuenta
+
 			-- cerrar el estado de cuenta (actualizar valores, como saldo final, y otros)
-	
 			INSERT INTO [dbo].[EstadoCuenta](
 				[FechaInicio],
 				[FechaFin],
