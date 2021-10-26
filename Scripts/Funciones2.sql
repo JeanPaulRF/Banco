@@ -138,12 +138,23 @@ GO
 
 
 
-CREATE PROCEDURE dbo.CerrarEstadosCuenta(@Fecha date)
+CREATE PROCEDURE dbo.CerrarEstadosCuenta(@Fecha date,
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
 	UPDATE [dbo].[EstadoCuenta]
 	SET Activo=0
 	WHERE [FechaFin]<=@Fecha
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -154,9 +165,12 @@ CREATE PROCEDURE dbo.InteresSaldoMinimo(
 	@Fecha date,
 	@SaldoMinimoMes money,
 	@Interes money,
-	@IdMoneda int)
+	@IdMoneda int,
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
 	INSERT INTO [dbo].[MovimientoCA](
 		[Descripcion],
 		[Fecha],
@@ -176,6 +190,14 @@ BEGIN
 		@IdMoneda
 	FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 	WHERE E.ID=@IdCuentaCierre
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -185,9 +207,12 @@ CREATE PROCEDURE dbo.CheckearSaldoMinimo(
 	@Fecha date,
 	@SaldoMinimo money,
 	@MultaSaldoMin money,
-	@IdMoneda int)
+	@IdMoneda int,
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
 	IF (SELECT [SaldoFinal] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) < @SaldoMinimo
 	BEGIN
 		INSERT INTO [dbo].[MovimientoCA](
@@ -210,6 +235,14 @@ BEGIN
 		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 		WHERE E.ID=@IdCuentaCierre
 	END
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -219,9 +252,12 @@ CREATE PROCEDURE dbo.CheckearQOperacionesAutomatico(
 	@Fecha date,
 	@QCajeroAutomatico int,
 	@ComisionAutomatico int,
-	@IdMoneda int)
+	@IdMoneda int,
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
 	IF (SELECT [QOperacionesATM] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) > 0
 	BEGIN
 		INSERT INTO [dbo].[MovimientoCA](
@@ -244,6 +280,14 @@ BEGIN
 		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 		WHERE E.ID=@IdCuentaCierre
 	END
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -253,9 +297,12 @@ CREATE PROCEDURE dbo.CheckearQOperacionesHumano(
 	@Fecha date,
 	@QCajeroHumano int,
 	@ComisionHumano int,
-	@IdMoneda int)
+	@IdMoneda int,
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
 	IF (SELECT [QOperacionesHumano] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) > 0
 	BEGIN
 		INSERT INTO [dbo].[MovimientoCA](
@@ -278,6 +325,14 @@ BEGIN
 		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 		WHERE E.ID=@IdCuentaCierre
 	END
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -286,9 +341,12 @@ CREATE PROCEDURE dbo.CobrarInteresMensual(
 	@IdCuentaCierre int, 
 	@Fecha date, 
 	@CargoAnual int,
-	@IdMoneda int)
+	@IdMoneda int,
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
 	INSERT INTO [dbo].[MovimientoCA](
 		[Descripcion],
 		[Fecha],
@@ -308,6 +366,14 @@ BEGIN
 		@IdMoneda
 	FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 	WHERE E.ID=@IdCuentaCierre
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -321,11 +387,22 @@ ON [dbo].[TipoCambio]
 AFTER INSERT
 AS
 BEGIN
+	DECLARE @outCodeResult int = 0
+	SET NOCOUNT ON
+	BEGIN TRY
 	DECLARE @IdTipoCambio int
 	SET @IdTipoCambio = (SELECT ID FROM Inserted)
 
 	UPDATE [dbo].[Moneda]
 	SET [IdTipoCambioFinal]=@IdTipoCambio
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -335,6 +412,10 @@ CREATE TRIGGER dbo.AplicarMovimiento
 ON [dbo].[MovimientoCA] AFTER INSERT
 AS
 BEGIN
+	DECLARE @outCodeResult int = 0
+	
+	SET NOCOUNT ON
+	BEGIN TRY
 	DECLARE
 		@Monto money,
 		@TipoMovimiento int,
@@ -396,17 +477,26 @@ BEGIN
 	FROM [dbo].[CuentaAhorro] C
 	WHERE C.ID=@IdCuenta
 		
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
+
 
 
 CREATE TRIGGER dbo.CrearEstadoCuenta
 ON [dbo].[CuentaAhorro] AFTER INSERT
 AS
 BEGIN
-	DECLARE @IdCuenta int
-	SET @IdCuenta = (SELECT ID FROM inserted)
-
+	DECLARE @outCodeResult int = 0
+	SET NOCOUNT ON
+	BEGIN TRY
 	INSERT INTO [dbo].[EstadoCuenta](
 		[FechaInicio],
 		[FechaFin],
@@ -416,17 +506,25 @@ BEGIN
 		[QOperacionesATM],
 		[QOperacionesHumano],
 		[SaldoMinimoMes])
-	SELECT
+	SELECT 
 		C.FechaConstitucion,
 		dateadd(m, 1, C.FechaConstitucion),
 		C.Saldo,
 		C.Saldo,
-		@IdCuenta,
+		i.ID,
 		0,
 		0,
 		C.Saldo
-	FROM [dbo].[CuentaAhorro] C
-	WHERE C.ID=@IdCuenta
+	FROM [dbo].[CuentaAhorro] C, inserted i
+	WHERE C.ID=i.ID
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -436,6 +534,9 @@ ON [dbo].[MovimientoCA]
 AFTER INSERT
 AS
 BEGIN
+	DECLARE @outCodeResult int = 0
+	SET NOCOUNT ON
+	BEGIN TRY
 	DECLARE 
 		@IdTipoMovimiento int, @IdMovimiento int
 
@@ -456,6 +557,14 @@ BEGIN
 			WHERE ID=@IdMovimiento
 		END
 	END
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
@@ -466,9 +575,12 @@ GO
 
 --PROCEDURES EXTRA
 
-CREATE PROCEDURE dbo.GetCuentasObjetivo(@NumeroCuenta varchar(32))
+CREATE PROCEDURE dbo.GetCuentasObjetivo(@NumeroCuenta varchar(32),
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
 	DECLARE @IdCuenta int
 	SET @IdCuenta = 
 		(SELECT ID FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta)
@@ -483,24 +595,65 @@ BEGIN
 		C.[Activo]
 	FROM [dbo].[CuentaObjetivo] C
 	WHERE C.[IdCuentaAhorro]=@IdCuenta
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
 
-CREATE PROCEDURE dbo.GetEstadosCuenta(@NumeroCuenta varchar(32))
+CREATE PROCEDURE dbo.GetEstadosCuenta(@NumeroCuenta varchar(32),
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
 	DECLARE @IdCuenta int
 	SET @IdCuenta= (SELECT ID FROM [dbo].[CuentaAhorro] WHERE NumeroCuenta=@NumeroCuenta)
 
 	SELECT * FROM [dbo].[EstadoCuenta] WHERE [IdCuentaAhorro]=@IdCuenta
+
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
 
-CREATE PROCEDURE dbo.GetMovimientosDeEstado(@IdEstadoCuenta int)
+
+
+CREATE PROCEDURE dbo.GetMovimientosDeEstado(@IdEstadoCuenta int,
+	@outCodeResult int OUTPUT)
 AS
 BEGIN
-	SELECT * FROM [dbo].[MovimientoCA] WHERE [IdEstadoCuenta]=@IdEstadoCuenta
+	SET NOCOUNT ON
+	BEGIN TRY
+		
+
+	SELECT 
+		M.Fecha,
+		M.Monto,
+
+	FROM [dbo].[MovimientoCA] M
+	WHERE [IdEstadoCuenta]=@IdEstadoCuenta
+
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO

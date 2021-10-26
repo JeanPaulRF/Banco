@@ -41,7 +41,7 @@ SELECT
 	T.Item.value('@IdTipoMoneda', 'INT'),
 	T.Item.value('@SaldoMinimo', 'MONEY'),
 	T.Item.value('@MultaSaldoMin', 'MONEY'),
-	T.Item.value('@CargoAnual', 'INT'),
+	T.Item.value('@CargoMensual', 'INT'),
 	T.Item.value('@NumRetirosHumano', 'INT'),
 	T.Item.value('@NumRetirosAutomatico', 'INT'),
 	T.Item.value('@ComisionHumano', 'INT'),

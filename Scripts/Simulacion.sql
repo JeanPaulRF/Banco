@@ -193,7 +193,7 @@ BEGIN
 			AND E.[FechaFin] >= @fechaInicial
 
 	
-	EXEC dbo.CerrarEstadosCuenta @fechaInicial
+	EXEC dbo.CerrarEstadosCuenta @fechaInicial 0
 
 	--.... cargar en tabla variable las cuentas que fueron creada en dia que corresponde a datepart(@fechaInicial, d)
 		 
@@ -232,24 +232,24 @@ BEGIN
 			--- Calcular intereses respecto del saldo minimo durante el mes, agregar credito por interes 
 			--- ganado y afectar saldo
 			EXEC dbo.InteresSaldoMinimo @IdCuentaCierre, @fechaInicial, @SaldoMinimoMes,
-				@InteresSaldoMinimo, @IdMonedaCuenta
+				@InteresSaldoMinimo, @IdMonedaCuenta 0
 
 			--- calcular multa por incumplimiento de saldo minimo y agregar movimiento debito y afecta saldo.
 			--Inserta en tabla movimientos
 			EXEC dbo.CheckearSaldoMinimo @IdCuentaCierre, @fechaInicial, @SaldoMinimo,
-				@MultaSaldoMin, @IdMonedaCuenta
+				@MultaSaldoMin, @IdMonedaCuenta 0
 			
 			--- cobro de comision por exceso de operaciones en ATM. Debito
 			EXEC dbo.CheckearQOperacionesAutomatico @IdCuentaCierre, @fechaInicial, @QCajeroAutomatico,
-				@ComisionAutomatico, @IdMonedaCuenta
+				@ComisionAutomatico, @IdMonedaCuenta 0
 			
 			--- cobro de comision por exceso de operaciones en cajero humano. Debito
 			EXEC dbo.CheckearQOperacionesHumano @IdCuentaCierre, @fechaInicial, @QCajeroHumano,
-				@ComisionHumano, @IdMonedaCuenta
+				@ComisionHumano, @IdMonedaCuenta 0
 
 			--- cobro de cargos por servicio. Debito.
 			EXEC dbo.CobrarInteresMensual @IdCuentaCierre, @fechaInicial, @CargoAnual,
-				@IdMonedaCuenta
+				@IdMonedaCuenta 0
 
 			-- cerrar el estado de cuenta (actualizar valores, como saldo final, y otros)
 			INSERT INTO [dbo].[EstadoCuenta](
