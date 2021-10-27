@@ -20,7 +20,7 @@ BEGIN
 		FROM [dbo].[CuentaAhorro] C
 		WHERE C.NumeroCuenta=@NumeroCuenta
 
-		BEGIN TRANSACTION T1
+		BEGIN TRANSACTION F1
 			SELECT CAST(@FechaInicio AS date) AS dataconverted;
 			SELECT CAST(@FechaFin AS date) AS dataconverted;
 
@@ -40,11 +40,11 @@ BEGIN
 				@Saldo,
 				@Interes,
 				@IdCuenta
-		COMMIT TRANSACTION T1
+		COMMIT TRANSACTION F1
 	 END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRAN F1;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -69,7 +69,7 @@ BEGIN
 		FROM [dbo].[CuentaAhorro] C
 		WHERE C.NumeroCuenta=@NumeroCuenta
 
-		BEGIN TRANSACTION T2
+		BEGIN TRANSACTION F2
 			SELECT CAST(@FechaInicio AS date) AS dataconverted
 			SELECT CAST(@FechaFin AS date) AS dataconverted
 
@@ -79,11 +79,11 @@ BEGIN
 				[FechaFin]=@FechaFin,
 				[Objetivo]=@Objetivo
 			WHERE [IdCuentaAhorro]=@IdCuenta
-		COMMIT TRANSACTION T2
+		COMMIT TRANSACTION F2
 	 END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T2;
+			ROLLBACK TRAN F2;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -117,15 +117,15 @@ BEGIN
 			SET @Valor=1
 		END
 
-		BEGIN TRANSACTION T3
+		BEGIN TRANSACTION F3
 			UPDATE [dbo].[CuentaObjetivo]
 			SET [Activo]=@Valor
 			WHERE [IdCuentaAhorro]=@IdCuenta
-		COMMIT TRANSACTION T3
+		COMMIT TRANSACTION F3
 	 END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T2;
+			ROLLBACK TRAN F3;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -144,9 +144,11 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+	BEGIN TRANSACTION F4
 	UPDATE [dbo].[EstadoCuenta]
 	SET Activo=0
 	WHERE [FechaFin]<=@Fecha
+	COMMIT TRANSACTION F4
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
@@ -171,29 +173,31 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
-	INSERT INTO [dbo].[MovimientoCA](
-		[Descripcion],
-		[Fecha],
-		[Monto],
-		[NuevoSaldo],
-		[IdCuentaAhorro],
-		[IdTipoMovimientoCA],
-		[IdEstadoCuenta],
-		[IdMoneda])
-	SELECT T.Nombre,
-		@Fecha,
-		(@Interes/12)/100*@SaldoMinimoMes,
-		E.SaldoFinal,
-		E.IdCuentaAhorro,
-		13,
-		@IdCuentaCierre,
-		@IdMoneda
-	FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
-	WHERE E.ID=@IdCuentaCierre
+	BEGIN TRANSACTION F5
+		INSERT INTO [dbo].[MovimientoCA](
+			[Descripcion],
+			[Fecha],
+			[Monto],
+			[NuevoSaldo],
+			[IdCuentaAhorro],
+			[IdTipoMovimientoCA],
+			[IdEstadoCuenta],
+			[IdMoneda])
+		SELECT T.Nombre,
+			@Fecha,
+			(@Interes/12)/100*@SaldoMinimoMes,
+			E.SaldoFinal,
+			E.IdCuentaAhorro,
+			13,
+			@IdCuentaCierre,
+			@IdMoneda
+		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
+		WHERE E.ID=@IdCuentaCierre
+	COMMIT TRANSACTION F5
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRANSACTION F5;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -213,6 +217,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+	BEGIN TRANSACTION F6
 	IF (SELECT [SaldoFinal] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) < @SaldoMinimo
 	BEGIN
 		INSERT INTO [dbo].[MovimientoCA](
@@ -235,10 +240,11 @@ BEGIN
 		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 		WHERE E.ID=@IdCuentaCierre
 	END
+	COMMIT TRANSACTION F6
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRAN F6;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -258,6 +264,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+	BEGIN TRANSACTION F7
 	IF (SELECT [QOperacionesATM] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) > 0
 	BEGIN
 		INSERT INTO [dbo].[MovimientoCA](
@@ -280,10 +287,11 @@ BEGIN
 		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 		WHERE E.ID=@IdCuentaCierre
 	END
+	COMMIT TRANSACTION F7
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRAN F7;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -303,6 +311,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+	BEGIN TRANSACTION F8
 	IF (SELECT [QOperacionesHumano] FROM [dbo].[EstadoCuenta] WHERE [ID]=@IdCuentaCierre) > 0
 	BEGIN
 		INSERT INTO [dbo].[MovimientoCA](
@@ -325,10 +334,11 @@ BEGIN
 		FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 		WHERE E.ID=@IdCuentaCierre
 	END
+	COMMIT TRANSACTION F8
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRAN F8;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -347,6 +357,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+	BEGIN TRANSACTION F9
 	INSERT INTO [dbo].[MovimientoCA](
 		[Descripcion],
 		[Fecha],
@@ -366,10 +377,11 @@ BEGIN
 		@IdMoneda
 	FROM [dbo].[TipoMovimientoCA] T, [dbo].[EstadoCuenta] E
 	WHERE E.ID=@IdCuentaCierre
+	COMMIT TRANSACTION F9
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRAN F9;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -398,7 +410,6 @@ BEGIN
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -462,7 +473,7 @@ BEGIN
 			BEGIN
 				UPDATE [dbo].[CuentaAhorro]
 				SET
-					Saldo=Saldo+ ( (@Monto/M.CompraTC) * (-1^@TipoMovimiento) * -1 )  --realiza el movimiento
+					Saldo=Saldo+ ( (@Monto*M.CompraTC) * (-1^@TipoMovimiento) * -1 )  --realiza el movimiento
 				FROM [dbo].[TipoCuentaAhorro] C, [dbo].[TipoMovimientoCA] T,
 					[dbo].[TipoCambio] M, [dbo].[Moneda] M2
 				WHERE C.ID=@IdCuenta
@@ -476,11 +487,9 @@ BEGIN
 	SET NuevoSaldo=C.Saldo
 	FROM [dbo].[CuentaAhorro] C
 	WHERE C.ID=@IdCuenta
-		
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -520,7 +529,6 @@ BEGIN
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -560,7 +568,6 @@ BEGIN
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -581,6 +588,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+	BEGIN TRANSACTION F14
 	DECLARE @IdCuenta int
 	SET @IdCuenta = 
 		(SELECT ID FROM [dbo].[CuentaAhorro] WHERE [NumeroCuenta]=@NumeroCuenta)
@@ -595,10 +603,11 @@ BEGIN
 		C.[Activo]
 	FROM [dbo].[CuentaObjetivo] C
 	WHERE C.[IdCuentaAhorro]=@IdCuenta
+	COMMIT TRANSACTION F14
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRAN F14;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -613,15 +622,16 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+	BEGIN TRANSACTION F15
 	DECLARE @IdCuenta int
 	SET @IdCuenta= (SELECT ID FROM [dbo].[CuentaAhorro] WHERE NumeroCuenta=@NumeroCuenta)
 
 	SELECT * FROM [dbo].[EstadoCuenta] WHERE [IdCuentaAhorro]=@IdCuenta
-
+	COMMIT TRANSACTION F15
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRAN F15;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -638,19 +648,80 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+
+	DECLARE @TempMovimientos TABLE(
+		Fecha date,
+		Compra money,
+		Venta money,
+		IdMonedaMovimiento int,
+		MontoMovimiento money,
+		IdMonedaCuenta int,
+		MontoCuenta money,
+		Descripcion varchar(64),
+		NuevoSaldo money)
+	DECLARE @minFecha date, @maxFecha date
+
+	SELECT @minFecha = MIN(Fecha), @maxFecha=MAX(Fecha) FROM [dbo].[MovimientoCA]
 		
+	WHILE @maxFecha>=@minFecha
+	BEGIN
+	BEGIN TRANSACTION F16
+		INSERT INTO @TempMovimientos(
+			Fecha,
+			Compra,
+			Venta,
+			IdMonedaMovimiento,
+			MontoMovimiento,
+			IdMonedaCuenta,
+			MontoCuenta,
+			Descripcion,
+			NuevoSaldo)
+		SELECT
+			M.Fecha,
+			0,
+			0,
+			M.IdMoneda,
+			M.Monto,
+			T.IdMoneda,
+			M.Monto,
+			M.Descripcion,
+			M.NuevoSaldo
+		FROM [dbo].[MovimientoCA] M, [dbo].[CuentaAhorro] C,
+			[dbo].[TipoCuentaAhorro] T
+		WHERE @maxFecha=M.Fecha
+			AND M.IdCuentaAhorro=C.ID
+				AND C.IdTipoCuentaAhorro=T.ID
 
-	SELECT 
-		M.Fecha,
-		M.Monto,
+		UPDATE @TempMovimientos
+		SET
+			Compra=T.CompraTC,
+			Venta=T.VentaTC,
+			MontoCuenta=MontoCuenta*T.CompraTC
+		FROM [dbo].[TipoCambio] T
+		WHERE IdMonedaCuenta!=IdMonedaMovimiento
+			AND T.Fecha=@maxFecha
+				AND IdMonedaCuenta=1
 
-	FROM [dbo].[MovimientoCA] M
-	WHERE [IdEstadoCuenta]=@IdEstadoCuenta
+		UPDATE @TempMovimientos
+		SET
+			Compra=T.CompraTC,
+			Venta=T.VentaTC,
+			MontoCuenta=MontoCuenta/T.VentaTC
+		FROM [dbo].[TipoCambio] T
+		WHERE IdMonedaCuenta!=IdMonedaMovimiento
+			AND T.Fecha=@maxFecha
+				AND IdMonedaCuenta=2
+
+		SET @maxFecha=DATEADD(d, -1, @maxFecha)
+	END
+	COMMIT TRANSACTION F16
+
+	SELECT * FROM @TempMovimientos
 
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
+			ROLLBACK TRAN F16;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH

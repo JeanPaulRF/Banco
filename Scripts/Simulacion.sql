@@ -13,7 +13,7 @@ INSERT INTO @FechasProcesar(Fecha)
 SELECT T.Item.value('@Fecha', 'DATE')--<campo del XML para fecha de operacion>
 FROM @xmlData.nodes('Datos/FechaOperacion') as T(Item) --<documento XML>
 
-
+DECLARE @outCodeResult int = 0
 DECLARE @fechaInicial DATE, @fechaFinal DATE, @DiaCierreEC int
 DECLARE @CuentasCierran TABLE(Sec int IDENTITY(1,1), IdEstadoCuenta Int)
 DECLARE @TipoOperacion int
@@ -28,26 +28,35 @@ SELECT @fechaInicial=MIN(Fecha), @fechaFinal=MAX(Fecha) FROM @FechasProcesar
 WHILE @fechaInicial<=@fechaFinal
 BEGIN
 
-	--Insertar Personas
-	INSERT INTO [dbo].[Persona](
-		[IdTipoIdentidad],
-		[Nombre],
-		[ValorDocumentoIdentidad],
-		[FechaDeNacimiento],
-		[Email],
-		[Telefono1],
-		[Telefono2])
-	SELECT 
-		T.Item.value('@TipoDocuIdentidad','INT'),
-		T.Item.value('@Nombre', 'VARCHAR(64)'),
-		T.Item.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'),
-		T.Item.value('@FechaNacimiento','DATE'),
-		T.Item.value('@Email', 'VARCHAR(32)'),
-		T.Item.value('@Telefono1','VARCHAR(16)'),
-		T.Item.value('@Telefono2','VARCHAR(16)')
-	FROM @xmlData.nodes('Datos/FechaOperacion/AgregarPersona') as T(Item)
-	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
-
+	BEGIN TRY
+		BEGIN TRANSACTION T1
+		--Insertar Personas
+		INSERT INTO [dbo].[Persona](
+			[IdTipoIdentidad],
+			[Nombre],
+			[ValorDocumentoIdentidad],
+			[FechaDeNacimiento],
+			[Email],
+			[Telefono1],
+			[Telefono2])
+		SELECT 
+			T.Item.value('@TipoDocuIdentidad','INT'),
+			T.Item.value('@Nombre', 'VARCHAR(64)'),
+			T.Item.value('@ValorDocumentoIdentidad', 'VARCHAR(32)'),
+			T.Item.value('@FechaNacimiento','DATE'),
+			T.Item.value('@Email', 'VARCHAR(32)'),
+			T.Item.value('@Telefono1','VARCHAR(16)'),
+			T.Item.value('@Telefono2','VARCHAR(16)')
+		FROM @xmlData.nodes('Datos/FechaOperacion/AgregarPersona') as T(Item)
+		WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
+		COMMIT TRANSACTION T1
+	END TRY
+	BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T1;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	END CATCH
 
 	--CuentaAhorros
 	DECLARE @TempCuentas TABLE
@@ -71,21 +80,31 @@ BEGIN
 	FROM @xmlData.nodes('Datos/FechaOperacion/AgregarCuenta') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
-	-- Mapeo @TempCuentas-CuentaAhorro
-	INSERT INTO [dbo].[CuentaAhorro](
-		[IdCliente], 
-		[NumeroCuenta], 
-		[Saldo], 
-		[FechaConstitucion],
-		[IdTipoCuentaAhorro])
-	SELECT 
-		P.ID,
-		C.NumeroCuenta,
-		C.Saldo,
-		C.Fecha,
-		C.TipoCuenta
-	FROM @TempCuentas C, [dbo].[Persona] P 
-	WHERE C.IdentidadCliente=P.[ValorDocumentoIdentidad]
+	BEGIN TRY
+		BEGIN TRANSACTION T2
+		-- Mapeo @TempCuentas-CuentaAhorro
+		INSERT INTO [dbo].[CuentaAhorro](
+			[IdCliente], 
+			[NumeroCuenta], 
+			[Saldo], 
+			[FechaConstitucion],
+			[IdTipoCuentaAhorro])
+		SELECT 
+			P.ID,
+			C.NumeroCuenta,
+			C.Saldo,
+			C.Fecha,
+			C.TipoCuenta
+		FROM @TempCuentas C, [dbo].[Persona] P 
+		WHERE C.IdentidadCliente=P.[ValorDocumentoIdentidad]
+		COMMIT TRANSACTION T2
+	END TRY
+	BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T2;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	END CATCH
 	
 
 	--Insertar Beneficiario
@@ -107,6 +126,9 @@ BEGIN
 	FROM @xmlData.nodes('Datos/FechaOperacion/AgregarBeneficiario') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
+
+	BEGIN TRY
+	BEGIN TRANSACTION T3
 	-- Mapeo @@TempBeneficiario-Beneficiario
 	INSERT INTO [dbo].[Beneficiario](
 		[IdCliente], 
@@ -125,8 +147,17 @@ BEGIN
 	FROM @TempBeneficiario B, [dbo].[CuentaAhorro] C, [dbo].[Persona] P
 	WHERE C.NumeroCuenta=B.NumeroCuenta
 		AND P.ValorDocumentoIdentidad=B.ValorDocumentoIdentidadBeneficiario
+	COMMIT TRANSACTION T3
+	END TRY
+	BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T3;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	END CATCH
 
-
+	BEGIN TRY
+	BEGIN TRANSACTION T4
 	--Insertat TipodeCambio
 	INSERT INTO [dbo].[TipoCambio](
 		[Fecha],
@@ -139,6 +170,14 @@ BEGIN
 		1
 	FROM @xmlData.nodes('Datos/FechaOperacion/TipoCambioDolares') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
+	COMMIT TRANSACTION T4
+	END TRY
+	BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T4;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	END CATCH
 	
 	DECLARE @TempMovimientos TABLE (
 		Descripcion varchar(64),
@@ -169,6 +208,8 @@ BEGIN
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
 
+	BEGIN TRY
+	BEGIN TRANSACTION T5
 	--Inserta en tabla movimientos
 	INSERT INTO [dbo].[MovimientoCA](
 		[Descripcion],
@@ -191,9 +232,19 @@ BEGIN
 	WHERE T.NumeroCuenta = C.NumeroCuenta
 		AND E.[IdCuentaAhorro] = C.ID
 			AND E.[FechaFin] >= @fechaInicial
+	SELECT * FROM [dbo].[MovimientoCA]
+	COMMIT TRANSACTION T5
+	END TRY
+	BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN T5;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	END CATCH
 
+	SELECT COUNT (ID) FROM MovimientoCA
 	
-	EXEC dbo.CerrarEstadosCuenta @fechaInicial 0
+	EXEC dbo.CerrarEstadosCuenta @fechaInicial, 0
 
 	--.... cargar en tabla variable las cuentas que fueron creada en dia que corresponde a datepart(@fechaInicial, d)
 		 
@@ -206,6 +257,7 @@ BEGIN
 		 
 	SELECT @lo1=1, @hi1=MAX(Sec) FROM @CuentasCierran
 		 
+	print(@hi1)
 	WHILE @lo1<=@hi1
 		BEGIN
 			SELECT @IdCuentaCierre=C.IdEstadoCuenta FROM @CuentasCierran C WHERE Sec=@lo1
@@ -232,26 +284,28 @@ BEGIN
 			--- Calcular intereses respecto del saldo minimo durante el mes, agregar credito por interes 
 			--- ganado y afectar saldo
 			EXEC dbo.InteresSaldoMinimo @IdCuentaCierre, @fechaInicial, @SaldoMinimoMes,
-				@InteresSaldoMinimo, @IdMonedaCuenta 0
+				@InteresSaldoMinimo, @IdMonedaCuenta, 0
 
 			--- calcular multa por incumplimiento de saldo minimo y agregar movimiento debito y afecta saldo.
 			--Inserta en tabla movimientos
 			EXEC dbo.CheckearSaldoMinimo @IdCuentaCierre, @fechaInicial, @SaldoMinimo,
-				@MultaSaldoMin, @IdMonedaCuenta 0
+				@MultaSaldoMin, @IdMonedaCuenta, 0
 			
 			--- cobro de comision por exceso de operaciones en ATM. Debito
 			EXEC dbo.CheckearQOperacionesAutomatico @IdCuentaCierre, @fechaInicial, @QCajeroAutomatico,
-				@ComisionAutomatico, @IdMonedaCuenta 0
+				@ComisionAutomatico, @IdMonedaCuenta, 0
 			
 			--- cobro de comision por exceso de operaciones en cajero humano. Debito
 			EXEC dbo.CheckearQOperacionesHumano @IdCuentaCierre, @fechaInicial, @QCajeroHumano,
-				@ComisionHumano, @IdMonedaCuenta 0
+				@ComisionHumano, @IdMonedaCuenta, 0
 
 			--- cobro de cargos por servicio. Debito.
 			EXEC dbo.CobrarInteresMensual @IdCuentaCierre, @fechaInicial, @CargoAnual,
-				@IdMonedaCuenta 0
+				@IdMonedaCuenta, 0
 
 			-- cerrar el estado de cuenta (actualizar valores, como saldo final, y otros)
+			BEGIN TRY
+			BEGIN TRANSACTION T6
 			INSERT INTO [dbo].[EstadoCuenta](
 				[FechaInicio],
 				[FechaFin],
@@ -270,9 +324,18 @@ BEGIN
 				0
 			FROM [dbo].[EstadoCuenta] E
 			WHERE E.ID=@IdCuentaCierre
+			COMMIT TRANSACTION T6
+			END TRY
+			BEGIN CATCH
+				IF @@tRANCOUNT>0
+					ROLLBACK TRAN T6;
+				--INSERT EN TABLA DE ERRORES;
+				SET @outCodeResult=50005;
+			END CATCH
 
 			SET @lo1=@lo1+1
 		END
 
 	SET @fechaInicial=dateadd(d, 1, @fechaInicial)
+	print(@fechaInicial)
 END;
