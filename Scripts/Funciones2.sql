@@ -422,7 +422,7 @@ CREATE TRIGGER dbo.AplicarMovimiento
 ON [dbo].[MovimientoCA] AFTER INSERT
 AS
 BEGIN
-	DECLARE @outCodeResult int = 0
+		DECLARE @outCodeResult int = 0
 
 		--Si es el mismo tipo de moneda
 
@@ -469,7 +469,7 @@ BEGIN
 		UPDATE [dbo].[MovimientoCA]
 		SET NuevoSaldo=C.Saldo
 		FROM [dbo].[CuentaAhorro] C, inserted i
-		WHERE C.ID=i.ID
+		WHERE C.ID=i.IdCuentaAhorro
 END;
 GO
 

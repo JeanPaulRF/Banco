@@ -90,6 +90,7 @@ BEGIN
 		WHERE C.IdentidadCliente=P.[ValorDocumentoIdentidad]
 	
 
+
 	--Insertar Beneficiario
 	DECLARE @TempBeneficiario TABLE
 		(NumeroCuenta varchar(32),
@@ -200,11 +201,10 @@ BEGIN
 		AND E.[IdCuentaAhorro] = C.ID
 			AND E.[FechaFin] >= @fechaInicial
 
-	SELECT * FROM [dbo].[MovimientoCA]
 	
 	--INSERT INTO MovimientoCA values('10-10-1000', 0, 10, 1, 1, 1, ' a', 1)
 
-	--select * from MovimientoCA
+	select * from MovimientoCA
 	
 	EXEC dbo.CerrarEstadosCuenta @fechaInicial, 0
 
