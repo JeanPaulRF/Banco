@@ -431,19 +431,17 @@ BEGIN
 END;
 GO
 
+
 CREATE PROCEDURE dbo.GetUser (@Identificacion varchar(32))
 AS
 BEGIN 
-
-	DECLARE @IdUser int;
-	SELECT @IdUser=P.ID
-	FROM [dbo].[Persona] P
+	SELECT * 
+	FROM [dbo].[Usuario] U, [dbo].[Persona] P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion
-
-
-	SELECT * FROM [dbo].[Usuario] WHERE IdPersona =	@IdUser
+		AND P.ID=U.IdPersona
 END;
 GO
+
 
 
 CREATE PROCEDURE dbo.GetUsuariosPuedeVer(@Usuario varchar(16))

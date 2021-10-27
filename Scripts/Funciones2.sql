@@ -686,6 +686,7 @@ BEGIN
 		WHERE @maxFecha=M.Fecha
 			AND M.IdCuentaAhorro=C.ID
 				AND C.IdTipoCuentaAhorro=T.ID
+					AND M.IdEstadoCuenta=@IdEstadoCuenta
 
 		UPDATE @TempMovimientos
 		SET
