@@ -157,6 +157,7 @@ BEGIN
 		IdMoneda int,
 		IdTipoMovimiento int)
 
+
 	--Insertar Movimientos
 	INSERT INTO @TempMovimientos(
 		Descripcion,
@@ -176,8 +177,7 @@ BEGIN
 	FROM @xmlData.nodes('Datos/FechaOperacion/Movimientos') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
-	--BEGIN TRY
-	--BEGIN TRANSACTION T5
+
 	--Inserta en tabla movimientos
 	INSERT INTO [dbo].[MovimientoCA](
 		[Descripcion],
@@ -201,10 +201,6 @@ BEGIN
 		AND E.[IdCuentaAhorro] = C.ID
 			AND E.[FechaFin] >= @fechaInicial
 
-	
-	--INSERT INTO MovimientoCA values('10-10-1000', 0, 10, 1, 1, 1, ' a', 1)
-
-	select * from MovimientoCA
 	
 	EXEC dbo.CerrarEstadosCuenta @fechaInicial, 0
 
@@ -277,17 +273,18 @@ BEGIN
 			SELECT
 				E.FechaFin,
 				dateadd(m, 1, E.FechaFin),
-				E.SaldoFinal,
-				E.SaldoFinal,
+				C.Saldo,
+				C.Saldo,
 				E.IdCuentaAhorro,
 				0,
 				0,
 				E.SaldoFinal
-			FROM [dbo].[EstadoCuenta] E
+			FROM [dbo].[EstadoCuenta] E, [dbo].[CuentaAhorro] C
 			WHERE E.ID=@IdCuentaCierre
-
+				AND C.ID=E.IdCuentaAhorro
 
 			SET @lo1=@lo1+1
+
 		END
 
 	SET @fechaInicial=dateadd(d, 1, @fechaInicial)

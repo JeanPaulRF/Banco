@@ -418,6 +418,8 @@ END;
 GO
 
 
+
+
 CREATE TRIGGER dbo.AplicarMovimiento
 ON [dbo].[MovimientoCA] AFTER INSERT
 AS
@@ -470,6 +472,34 @@ BEGIN
 		SET NuevoSaldo=C.Saldo
 		FROM [dbo].[CuentaAhorro] C, inserted i
 		WHERE C.ID=i.IdCuentaAhorro
+
+
+		UPDATE [dbo].[EstadoCuenta]
+		SET QOperacionesHumano = QOperacionesHumano+1
+		FROM inserted i, [dbo].[EstadoCuenta] E
+		WHERE E.ID=i.IdEstadoCuenta
+			AND i.IdTipoMovimientoCA=1 OR i.IdTipoMovimientoCA=7
+				AND i.Fecha<E.FechaFin
+
+		UPDATE [dbo].[EstadoCuenta]
+		SET QOperacionesATM = QOperacionesATM+1
+		FROM inserted i, [dbo].[EstadoCuenta] E
+		WHERE E.ID=i.IdEstadoCuenta
+			AND i.IdTipoMovimientoCA=2 OR i.IdTipoMovimientoCA=6
+				AND i.Fecha<E.FechaFin
+
+		UPDATE [dbo].[EstadoCuenta]
+		SET [SaldoFinal]=i.NuevoSaldo
+		FROM inserted i, [dbo].[EstadoCuenta] E
+		WHERE i.IdEstadoCuenta=E.ID
+			AND i.Fecha<E.FechaFin
+
+		UPDATE [dbo].[EstadoCuenta]
+		SET SaldoMinimoMes=i.NuevoSaldo
+		FROM inserted i, [dbo].[EstadoCuenta] E
+		WHERE i.NuevoSaldo<E.SaldoMinimoMes
+			AND E.ID=i.IdEstadoCuenta
+				AND i.Fecha<E.FechaFin
 END;
 GO
 
@@ -503,11 +533,10 @@ BEGIN
 END;
 GO
 
-
+/*
 
 CREATE TRIGGER dbo.ActualizarEstadoCuenta
-ON [dbo].[MovimientoCA]
-AFTER INSERT
+ON [dbo].[MovimientoCA] AFTER UPDATE
 AS
 BEGIN
 	DECLARE @outCodeResult int = 0
@@ -517,17 +546,31 @@ BEGIN
 	FROM inserted i, [dbo].[EstadoCuenta] E
 	WHERE E.ID=i.IdEstadoCuenta
 		AND i.IdTipoMovimientoCA=1 OR i.IdTipoMovimientoCA=7
-
+			AND i.Fecha<E.FechaFin
 
 	UPDATE [dbo].[EstadoCuenta]
 	SET QOperacionesATM = QOperacionesATM+1
 	FROM inserted i, [dbo].[EstadoCuenta] E
 	WHERE E.ID=i.IdEstadoCuenta
 		AND i.IdTipoMovimientoCA=2 OR i.IdTipoMovimientoCA=6
+			AND i.Fecha<E.FechaFin
+
+	UPDATE [dbo].[EstadoCuenta]
+	SET [SaldoFinal]=i.NuevoSaldo
+	FROM inserted i, [dbo].[EstadoCuenta] E
+	WHERE i.IdEstadoCuenta=E.ID
+		AND i.Fecha<E.FechaFin
+
+	UPDATE [dbo].[EstadoCuenta]
+	SET SaldoMinimoMes=i.NuevoSaldo
+	FROM inserted i, [dbo].[EstadoCuenta] E
+	WHERE i.NuevoSaldo<E.SaldoMinimoMes
+		AND E.ID=i.IdEstadoCuenta
+			AND i.Fecha<E.FechaFin
 END;
 GO
 
-
+*/
 
 
 
