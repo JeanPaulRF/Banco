@@ -28,8 +28,6 @@ SELECT @fechaInicial=MIN(Fecha), @fechaFinal=MAX(Fecha) FROM @FechasProcesar
 WHILE @fechaInicial<=@fechaFinal
 BEGIN
 
-	BEGIN TRY
-		BEGIN TRANSACTION T1
 		--Insertar Personas
 		INSERT INTO [dbo].[Persona](
 			[IdTipoIdentidad],
@@ -49,14 +47,7 @@ BEGIN
 			T.Item.value('@Telefono2','VARCHAR(16)')
 		FROM @xmlData.nodes('Datos/FechaOperacion/AgregarPersona') as T(Item)
 		WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
-		COMMIT TRANSACTION T1
-	END TRY
-	BEGIN CATCH
-		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T1;
-		--INSERT EN TABLA DE ERRORES;
-		SET @outCodeResult=50005;
-	END CATCH
+
 
 	--CuentaAhorros
 	DECLARE @TempCuentas TABLE
@@ -80,8 +71,8 @@ BEGIN
 	FROM @xmlData.nodes('Datos/FechaOperacion/AgregarCuenta') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
-	BEGIN TRY
-		BEGIN TRANSACTION T2
+
+
 		-- Mapeo @TempCuentas-CuentaAhorro
 		INSERT INTO [dbo].[CuentaAhorro](
 			[IdCliente], 
@@ -97,14 +88,6 @@ BEGIN
 			C.TipoCuenta
 		FROM @TempCuentas C, [dbo].[Persona] P 
 		WHERE C.IdentidadCliente=P.[ValorDocumentoIdentidad]
-		COMMIT TRANSACTION T2
-	END TRY
-	BEGIN CATCH
-		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T2;
-		--INSERT EN TABLA DE ERRORES;
-		SET @outCodeResult=50005;
-	END CATCH
 	
 
 	--Insertar Beneficiario
@@ -127,8 +110,7 @@ BEGIN
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
 
-	BEGIN TRY
-	BEGIN TRANSACTION T3
+
 	-- Mapeo @@TempBeneficiario-Beneficiario
 	INSERT INTO [dbo].[Beneficiario](
 		[IdCliente], 
@@ -147,17 +129,9 @@ BEGIN
 	FROM @TempBeneficiario B, [dbo].[CuentaAhorro] C, [dbo].[Persona] P
 	WHERE C.NumeroCuenta=B.NumeroCuenta
 		AND P.ValorDocumentoIdentidad=B.ValorDocumentoIdentidadBeneficiario
-	COMMIT TRANSACTION T3
-	END TRY
-	BEGIN CATCH
-		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T3;
-		--INSERT EN TABLA DE ERRORES;
-		SET @outCodeResult=50005;
-	END CATCH
+	
 
-	BEGIN TRY
-	BEGIN TRANSACTION T4
+	
 	--Insertat TipodeCambio
 	INSERT INTO [dbo].[TipoCambio](
 		[Fecha],
@@ -170,14 +144,8 @@ BEGIN
 		1
 	FROM @xmlData.nodes('Datos/FechaOperacion/TipoCambioDolares') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
-	COMMIT TRANSACTION T4
-	END TRY
-	BEGIN CATCH
-		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T4;
-		--INSERT EN TABLA DE ERRORES;
-		SET @outCodeResult=50005;
-	END CATCH
+
+
 	
 	DECLARE @TempMovimientos TABLE (
 		Descripcion varchar(64),
@@ -207,9 +175,8 @@ BEGIN
 	FROM @xmlData.nodes('Datos/FechaOperacion/Movimientos') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
-
-	BEGIN TRY
-	BEGIN TRANSACTION T5
+	--BEGIN TRY
+	--BEGIN TRANSACTION T5
 	--Inserta en tabla movimientos
 	INSERT INTO [dbo].[MovimientoCA](
 		[Descripcion],
@@ -232,17 +199,12 @@ BEGIN
 	WHERE T.NumeroCuenta = C.NumeroCuenta
 		AND E.[IdCuentaAhorro] = C.ID
 			AND E.[FechaFin] >= @fechaInicial
-	SELECT * FROM [dbo].[MovimientoCA]
-	COMMIT TRANSACTION T5
-	END TRY
-	BEGIN CATCH
-		IF @@tRANCOUNT>0
-			ROLLBACK TRAN T5;
-		--INSERT EN TABLA DE ERRORES;
-		SET @outCodeResult=50005;
-	END CATCH
 
-	SELECT COUNT (ID) FROM MovimientoCA
+	SELECT * FROM [dbo].[MovimientoCA]
+	
+	--INSERT INTO MovimientoCA values('10-10-1000', 0, 10, 1, 1, 1, ' a', 1)
+
+	--select * from MovimientoCA
 	
 	EXEC dbo.CerrarEstadosCuenta @fechaInicial, 0
 
@@ -257,7 +219,6 @@ BEGIN
 		 
 	SELECT @lo1=1, @hi1=MAX(Sec) FROM @CuentasCierran
 		 
-	print(@hi1)
 	WHILE @lo1<=@hi1
 		BEGIN
 			SELECT @IdCuentaCierre=C.IdEstadoCuenta FROM @CuentasCierran C WHERE Sec=@lo1
@@ -304,8 +265,6 @@ BEGIN
 				@IdMonedaCuenta, 0
 
 			-- cerrar el estado de cuenta (actualizar valores, como saldo final, y otros)
-			BEGIN TRY
-			BEGIN TRANSACTION T6
 			INSERT INTO [dbo].[EstadoCuenta](
 				[FechaInicio],
 				[FechaFin],
@@ -313,7 +272,8 @@ BEGIN
 				[SaldoFinal],
 				[IdCuentaAhorro],
 				[QOperacionesHumano],
-				[QOperacionesATM])
+				[QOperacionesATM],
+				[SaldoMinimoMes])
 			SELECT
 				E.FechaFin,
 				dateadd(m, 1, E.FechaFin),
@@ -321,21 +281,14 @@ BEGIN
 				E.SaldoFinal,
 				E.IdCuentaAhorro,
 				0,
-				0
+				0,
+				E.SaldoFinal
 			FROM [dbo].[EstadoCuenta] E
 			WHERE E.ID=@IdCuentaCierre
-			COMMIT TRANSACTION T6
-			END TRY
-			BEGIN CATCH
-				IF @@tRANCOUNT>0
-					ROLLBACK TRAN T6;
-				--INSERT EN TABLA DE ERRORES;
-				SET @outCodeResult=50005;
-			END CATCH
+
 
 			SET @lo1=@lo1+1
 		END
 
 	SET @fechaInicial=dateadd(d, 1, @fechaInicial)
-	print(@fechaInicial)
 END;

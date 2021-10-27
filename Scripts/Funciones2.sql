@@ -418,82 +418,58 @@ END;
 GO
 
 
-
 CREATE TRIGGER dbo.AplicarMovimiento
 ON [dbo].[MovimientoCA] AFTER INSERT
 AS
 BEGIN
 	DECLARE @outCodeResult int = 0
-	
-	SET NOCOUNT ON
-	BEGIN TRY
-	DECLARE
-		@Monto money,
-		@TipoMovimiento int,
-		@NumeroCuenta varchar(32),
-		@IdMoneda int,
-		@IdCuenta int,
-		@IdTipoCuenta int,
-		@IdMonedaCuenta int
 
-	SET @IdCuenta = (SELECT IdCuentaAhorro FROM Inserted)
-	SET @IdTipoCuenta = (SELECT IdTipoCuentaAhorro FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
-	SET @Monto = (SELECT Monto FROM Inserted)
-	SET @TipoMovimiento = (SELECT IdTipoMovimientoCA FROM Inserted)
-	SET @NumeroCuenta = (SELECT C.NumeroCuenta FROM [dbo].[CuentaAhorro] C WHERE C.ID=@IdCuenta)
-	SET @IdMoneda = (SELECT IdMoneda FROM Inserted)
-	SET @IdMonedaCuenta = (SELECT C.IdMoneda FROM [dbo].[TipoCuentaAhorro] C WHERE C.ID=@IdTipoCuenta)
+		--Si es el mismo tipo de moneda
 
-	--Si es el mismo tipo de moneda
-	IF @IdMoneda=@IdMonedaCuenta
-	BEGIN
 		UPDATE [dbo].[CuentaAhorro]
 		SET
-			Saldo=Saldo+(@Monto*(-1^T.Operacion)*-1) --realiza el movimiento
-		FROM [dbo].[TipoMovimientoCA] T, [dbo].[CuentaAhorro] C
-		WHERE C.ID=@IdCuenta
-			AND @TipoMovimiento=T.ID --busca el tipo de movimiento
-	END ELSE
-	BEGIN
-		--Si la cuenta es en Dolares y el movimiento es el Colones
-		IF @IdMoneda=1 AND @IdMonedaCuenta=2
-		BEGIN
-			UPDATE [dbo].[CuentaAhorro]
-			SET
-				Saldo=Saldo+ ( (@Monto/M.VentaTC) * (-1^T.Operacion) * -1 )  --realiza el movimiento
-			FROM [dbo].[TipoCuentaAhorro] C, [dbo].[TipoMovimientoCA] T,
-				[dbo].[TipoCambio] M, [dbo].[Moneda] M2
-			WHERE C.ID=@IdCuenta
-				AND @TipoMovimiento=T.ID --busca el tipo de movimiento
-					AND M.ID = M2.[IdTipoCambioFinal]
-		END ELSE
-		BEGIN
-			--Si la cuenta es en Colones y el movimiento es el Dolares
-			IF @IdMoneda=2 AND @IdMonedaCuenta=1
-			BEGIN
-				UPDATE [dbo].[CuentaAhorro]
-				SET
-					Saldo=Saldo+ ( (@Monto*M.CompraTC) * (-1^@TipoMovimiento) * -1 )  --realiza el movimiento
-				FROM [dbo].[TipoCuentaAhorro] C, [dbo].[TipoMovimientoCA] T,
-					[dbo].[TipoCambio] M, [dbo].[Moneda] M2
-				WHERE C.ID=@IdCuenta
-					AND @TipoMovimiento=T.ID --busca el tipo de movimiento
-						AND M.ID = M2.[IdTipoCambioFinal]
-			END
-		END
-	END
+			Saldo=Saldo+(i.Monto*(-1^T.Operacion)*-1) --realiza el movimiento
+		FROM [dbo].[TipoMovimientoCA] T, [dbo].[CuentaAhorro] C, inserted i,
+			[dbo].[TipoCuentaAhorro] TC
+		WHERE C.ID=i.IdCuentaAhorro
+			AND i.IdTipoMovimientoCA=T.ID --busca el tipo de movimiento 
+				AND TC.ID=C.IdTipoCuentaAhorro --busca tipo de cuenta
+					AND i.IdMoneda=TC.IdMoneda --busca las monedas
 
-	UPDATE [dbo].[MovimientoCA]
-	SET NuevoSaldo=C.Saldo
-	FROM [dbo].[CuentaAhorro] C
-	WHERE C.ID=@IdCuenta
-	END TRY
-	 BEGIN CATCH
-		IF @@tRANCOUNT>0
-		--INSERT EN TABLA DE ERRORES;
-		SET @outCodeResult=50005;
-	 END CATCH
-	 SET NOCOUNT OFF
+		--Si la cuenta es en Dolares y el movimiento es el Colones
+		--IF @IdMoneda=1 AND @IdMonedaCuenta=2
+		UPDATE [dbo].[CuentaAhorro]
+		SET
+			Saldo=Saldo+ ( (i.Monto/M.VentaTC) * (-1^T.Operacion) * -1 )  --realiza el movimiento
+		FROM [dbo].[CuentaAhorro] C, [dbo].[TipoMovimientoCA] T, [dbo].[TipoCambio] M, 
+			[dbo].[Moneda] M2, inserted i, [dbo].[TipoCuentaAhorro] TC
+		WHERE C.ID=i.IdCuentaAhorro
+			AND i.IdTipoMovimientoCA=T.ID --busca el tipo de movimiento 
+				AND TC.ID=C.IdTipoCuentaAhorro --busca tipo de cuenta
+					AND M.ID = M2.[IdTipoCambioFinal] --tipo de cambio final
+						AND i.IdMoneda=1
+							AND TC.IdMoneda=2
+
+		--Si la cuenta es en Colones y el movimiento es el Dolares
+		--IF @IdMoneda=2 AND @IdMonedaCuenta=1
+
+		UPDATE [dbo].[CuentaAhorro]
+		SET
+			Saldo=Saldo+ ( (i.Monto*M.CompraTC) * (-1^T.Operacion) * -1 )  --realiza el movimiento
+		FROM [dbo].[CuentaAhorro] C, [dbo].[TipoMovimientoCA] T, [dbo].[TipoCambio] M, 
+			[dbo].[Moneda] M2, inserted i, [dbo].[TipoCuentaAhorro] TC
+		WHERE C.ID=i.IdCuentaAhorro
+			AND i.IdTipoMovimientoCA=T.ID --busca el tipo de movimiento 
+				AND TC.ID=C.IdTipoCuentaAhorro --busca tipo de cuenta
+					AND M.ID = M2.[IdTipoCambioFinal] --tipo de cambio final
+						AND i.IdMoneda=2
+							AND TC.IdMoneda=1
+
+
+		UPDATE [dbo].[MovimientoCA]
+		SET NuevoSaldo=C.Saldo
+		FROM [dbo].[CuentaAhorro] C, inserted i
+		WHERE C.ID=i.ID
 END;
 GO
 
@@ -504,8 +480,6 @@ ON [dbo].[CuentaAhorro] AFTER INSERT
 AS
 BEGIN
 	DECLARE @outCodeResult int = 0
-	SET NOCOUNT ON
-	BEGIN TRY
 	INSERT INTO [dbo].[EstadoCuenta](
 		[FechaInicio],
 		[FechaFin],
@@ -526,15 +500,9 @@ BEGIN
 		C.Saldo
 	FROM [dbo].[CuentaAhorro] C, inserted i
 	WHERE C.ID=i.ID
-	END TRY
-	 BEGIN CATCH
-		IF @@tRANCOUNT>0
-		--INSERT EN TABLA DE ERRORES;
-		SET @outCodeResult=50005;
-	 END CATCH
-	 SET NOCOUNT OFF
 END;
 GO
+
 
 
 CREATE TRIGGER dbo.ActualizarEstadoCuenta
@@ -543,35 +511,19 @@ AFTER INSERT
 AS
 BEGIN
 	DECLARE @outCodeResult int = 0
-	SET NOCOUNT ON
-	BEGIN TRY
-	DECLARE 
-		@IdTipoMovimiento int, @IdMovimiento int
 
-	SET @IdTipoMovimiento = (SELECT [IdTipoMovimientoCA] FROM Inserted)
-	SET @IdMovimiento = (SELECT [ID] FROM Inserted)
+	UPDATE [dbo].[EstadoCuenta]
+	SET QOperacionesHumano = QOperacionesHumano+1
+	FROM inserted i, [dbo].[EstadoCuenta] E
+	WHERE E.ID=i.IdEstadoCuenta
+		AND i.IdTipoMovimientoCA=1 OR i.IdTipoMovimientoCA=7
 
-	IF @IdTipoMovimiento=1 OR @IdTipoMovimiento=7
-	BEGIN
-		UPDATE [dbo].[EstadoCuenta]
-		SET QOperacionesHumano = QOperacionesHumano+1
-		WHERE ID=@IdMovimiento
-	END ELSE 
-	BEGIN
-		IF @IdTipoMovimiento=2 OR @IdTipoMovimiento=6
-		BEGIN
-			UPDATE [dbo].[EstadoCuenta]
-			SET QOperacionesATM = QOperacionesATM+1
-			WHERE ID=@IdMovimiento
-		END
-	END
-	END TRY
-	 BEGIN CATCH
-		IF @@tRANCOUNT>0
-		--INSERT EN TABLA DE ERRORES;
-		SET @outCodeResult=50005;
-	 END CATCH
-	 SET NOCOUNT OFF
+
+	UPDATE [dbo].[EstadoCuenta]
+	SET QOperacionesATM = QOperacionesATM+1
+	FROM inserted i, [dbo].[EstadoCuenta] E
+	WHERE E.ID=i.IdEstadoCuenta
+		AND i.IdTipoMovimientoCA=2 OR i.IdTipoMovimientoCA=6
 END;
 GO
 
