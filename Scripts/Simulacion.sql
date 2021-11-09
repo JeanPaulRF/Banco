@@ -71,7 +71,7 @@ BEGIN
 	FROM @xmlData.nodes('Datos/FechaOperacion/AgregarCuenta') as T(Item)
 	WHERE T.Item.value('../@Fecha', 'DATE') = @fechaInicial;
 
-
+		SELECT * FROM @TempCuentas WHERE IdentidadCliente='11'
 
 		-- Mapeo @TempCuentas-CuentaAhorro
 		INSERT INTO [dbo].[CuentaAhorro](
@@ -88,6 +88,9 @@ BEGIN
 			C.TipoCuenta
 		FROM @TempCuentas C, [dbo].[Persona] P 
 		WHERE C.IdentidadCliente=P.[ValorDocumentoIdentidad]
+			AND 
+
+		SELECT * FROM CuentaAhorro WHERE IdCliente=1
 	
 
 

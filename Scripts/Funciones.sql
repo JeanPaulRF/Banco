@@ -396,21 +396,34 @@ GO
 CREATE PROCEDURE dbo.GetCuentasDeCliente(@Identificacion varchar(32))
 AS
 BEGIN
-	DECLARE @IdCliente int;
-	SET @IdCliente = 
-	(SELECT P.ID
-	FROM [dbo].[Persona] P
-	WHERE P.ValorDocumentoIdentidad=@Identificacion)
-	
+	DECLARE @Temp TABLE(
+		Cedula varchar(32),
+		NumeroCuenta varchar(32),
+		Fecha date,
+		IdTipo int)
+
+	INSERT INTO @Temp(
+		Cedula,
+		NumeroCuenta,
+		Fecha,
+		IdTipo)
 	SELECT 
 		P.ValorDocumentoIdentidad as Identificacion,
 		C.NumeroCuenta as NumeroCuenta,
 		C.FechaConstitucion as FechaConstitucion,
 		C.IdTipoCuentaAhorro as TipoCuentaAhorro
 	FROM [dbo].[CuentaAhorro] C, [dbo].[Persona] P
-	WHERE P.ID=@IdCliente AND C.IdCliente=@IdCliente
+	WHERE P.ValorDocumentoIdentidad=@Identificacion AND C.IdCliente=P.ID
+
+
 END;
 GO
+
+
+exec GetCuentasDeCliente '117370445'
+
+
+SELECT * FROM CuentaAhorro
 
 
 
@@ -432,16 +445,23 @@ END;
 GO
 
 
+
 CREATE PROCEDURE dbo.GetUser (@Identificacion varchar(32))
 AS
 BEGIN 
-	SELECT * 
+	SELECT 
+		U.ID,
+		U.Administrador,
+		U.Contrasena,
+		U.IdPersona,
+		U.Nombre
 	FROM [dbo].[Usuario] U, [dbo].[Persona] P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion
 		AND P.ID=U.IdPersona
 END;
 GO
 
+exec GetUser '117370445'
 
 
 CREATE PROCEDURE dbo.GetUsuariosPuedeVer(@Usuario varchar(16))
