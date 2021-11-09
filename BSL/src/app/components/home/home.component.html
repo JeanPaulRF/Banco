@@ -1,0 +1,48 @@
+<mat-toolbar color="primary">
+	<mat-icon>account_balance</mat-icon>
+	<a>Banco San Luis</a>
+	<span class="move"></span>
+
+
+	<a>
+		<button mat-button (click)="goToBeneficiaries()">
+			<mat-icon>face</mat-icon>
+			Beneficiarios
+		</button>
+	</a>
+	<a>
+		<button mat-button (click)="goToCuentas()">
+			<mat-icon>account_circle</mat-icon>
+			Cuentas
+		</button>
+	</a>
+	<ng-template [ngIf]="this.itsAdmin">
+		<a>
+			<button mat-button (click)="goToClients()">
+				<mat-icon>info</mat-icon>
+				Clientes
+			</button>
+		</a>
+	</ng-template>
+	<a routerLink="/login" routerLinkActive="active">
+		<button mat-button>
+			<mat-icon>power_settings_new</mat-icon>
+			LogOut
+		</button>
+	</a>
+
+</mat-toolbar>
+
+<div class="padre">
+	<div class="example-card">
+		<mat-card>
+			<mat-card-header>
+				<mat-card-title>{{'Nombre: '+ this.nombre }}</mat-card-title>
+				<mat-card-subtitle>{{'Id: ' + this.Identificacion }}</mat-card-subtitle>
+			</mat-card-header>
+			<div class="crop-image">
+				<img src="./../../../../assets/images/user.png" alt="" class="crop-image">
+			</div>
+		</mat-card>
+	</div>
+</div>

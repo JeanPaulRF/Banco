@@ -1,0 +1,30 @@
+<mat-toolbar color="primary">
+  <mat-icon>account_balance</mat-icon>
+  <span>
+    Banco San Luis
+  </span>
+  <span class="spacer"></span>
+  <div>
+    <!-- <a mat-button [routerLink]=''>loggin</a> -->
+  </div>
+</mat-toolbar>
+
+<div class="login-form" [formGroup]="registerForm">
+  <mat-card>
+    <mat-card-content>
+      <h1>LOGIN</h1>
+      <mat-form-field class="full-with-input">
+        <input text="text" matInput placeholder="Username" required id="user" formControlName="username">
+        <!-- <input type="text" matInput placeholder="Password" required id="password" formControlName="password">  -->
+      </mat-form-field>
+
+      <mat-form-field class="full-with-input" separator>
+        <input type="password" matInput placeholder="Password" required formControlName="password">
+      </mat-form-field>
+
+      <button type="submit" mat-raised-button color="primary" (click)="log()"> Login </button>
+
+
+    </mat-card-content>
+  </mat-card>
+</div>

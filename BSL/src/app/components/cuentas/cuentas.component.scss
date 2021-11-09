@@ -1,0 +1,104 @@
+a {
+    color: #fff;
+    text-decoration: none;
+
+}
+
+.move{
+    flex: 1 1 auto;
+}
+
+.active {
+    border: 1px solid #f5f5f5;
+}
+
+.card-Info{
+    padding: 4rem 1 rem;
+    mat-card{
+      max-width: 400px;
+      margin: 2rem auto;
+      height: 300px;
+    }
+  }
+
+
+  h1{
+    font-size:15px;
+    padding-left: 10px;
+
+}
+.mainDiv{
+    width: 90%;
+    height: auto;
+    background-color:rgb(255, 255, 255);
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    -webkit-box-shadow: 0px 0px 6px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 6px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 6px 0px rgba(0,0,0,0.75);
+}
+.divUsers{
+    background: rgba(255, 255, 255, 0.466);
+    height: auto;
+    width: auto;
+    padding: 0;
+    border-radius: 20px;
+    margin-left: 10px;
+    margin-top: 20px;
+    -webkit-box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.75);
+}
+.divUsers:hover{
+    background: rgba(255, 255, 255, 0.666);
+    transform: scale(1.05,1.05);
+}
+.divUsersTitle{
+    width: 100%;
+    height: 20px;
+    background: rgb(182, 182, 182);
+    padding-top: 5px;
+    border-radius: 10px;
+    flex-direction: column;
+    display: flex;
+}.divTitle{
+    width: 100%;
+    height: 60px;
+    background:rgba(128, 128, 128, 0.507);
+    padding-top: 5px;
+    border-radius: 10px;
+    flex-direction: column;
+    display: flex;
+    -webkit-box-shadow: 0px 5px 8px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 5px 8px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 5px 8px 0px rgba(0,0,0,0.75);
+}
+.divCenter{
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+.divUsersInformation{
+    cursor: pointer;
+}
+
+
+
+.tooltip-wrap {
+    position: relative;
+  }
+  .tooltip-wrap .tooltip-content {
+    color: black;
+    display: none;
+    position: absolute;
+    bottom: 5%;
+    left: 5%;
+    right: 5%;
+    padding: .5em;
+  }
+  .tooltip-wrap:hover .tooltip-content {
+    display: block;
+  }

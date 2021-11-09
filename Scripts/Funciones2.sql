@@ -15,13 +15,12 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
-	BEGIN TRANSACTION F1
 		DECLARE @IdCuenta int
 		SELECT @IdCuenta=C.ID
 		FROM [dbo].[CuentaAhorro] C
 		WHERE C.NumeroCuenta=@NumeroCuenta
 
-		
+		BEGIN TRANSACTION F1
 			SELECT CAST(@FechaInicio AS date) AS dataconverted;
 			SELECT CAST(@FechaFin AS date) AS dataconverted;
 
@@ -534,6 +533,46 @@ BEGIN
 END;
 GO
 
+/*
+
+CREATE TRIGGER dbo.ActualizarEstadoCuenta
+ON [dbo].[MovimientoCA] AFTER UPDATE
+AS
+BEGIN
+	DECLARE @outCodeResult int = 0
+
+	UPDATE [dbo].[EstadoCuenta]
+	SET QOperacionesHumano = QOperacionesHumano+1
+	FROM inserted i, [dbo].[EstadoCuenta] E
+	WHERE E.ID=i.IdEstadoCuenta
+		AND i.IdTipoMovimientoCA=1 OR i.IdTipoMovimientoCA=7
+			AND i.Fecha<E.FechaFin
+
+	UPDATE [dbo].[EstadoCuenta]
+	SET QOperacionesATM = QOperacionesATM+1
+	FROM inserted i, [dbo].[EstadoCuenta] E
+	WHERE E.ID=i.IdEstadoCuenta
+		AND i.IdTipoMovimientoCA=2 OR i.IdTipoMovimientoCA=6
+			AND i.Fecha<E.FechaFin
+
+	UPDATE [dbo].[EstadoCuenta]
+	SET [SaldoFinal]=i.NuevoSaldo
+	FROM inserted i, [dbo].[EstadoCuenta] E
+	WHERE i.IdEstadoCuenta=E.ID
+		AND i.Fecha<E.FechaFin
+
+	UPDATE [dbo].[EstadoCuenta]
+	SET SaldoMinimoMes=i.NuevoSaldo
+	FROM inserted i, [dbo].[EstadoCuenta] E
+	WHERE i.NuevoSaldo<E.SaldoMinimoMes
+		AND E.ID=i.IdEstadoCuenta
+			AND i.Fecha<E.FechaFin
+END;
+GO
+
+*/
+
+
 
 
 --PROCEDURES EXTRA
@@ -576,34 +615,36 @@ CREATE PROCEDURE dbo.GetEstadosCuenta(@NumeroCuenta varchar(32),
 	@outCodeResult int OUTPUT)
 AS
 BEGIN
+	SET NOCOUNT ON
+	BEGIN TRY
+	BEGIN TRANSACTION F15
+	DECLARE @IdCuenta int
+	SET @IdCuenta= (SELECT ID FROM [dbo].[CuentaAhorro] WHERE NumeroCuenta=@NumeroCuenta)
 
-	SELECT 
-		E.ID,
-		E.Activo,
-		E.FechaFin,
-		E.FechaInicio,
-		E.IdCuentaAhorro, 
-		E.QOperacionesATM,
-		E.QOperacionesHumano,
-		E.SaldoFinal, 
-		E.SaldoInicial,
-		E.SaldoMinimoMes
-	FROM [dbo].[EstadoCuenta] E, [dbo].[CuentaAhorro] C
-	WHERE [IdCuentaAhorro]=C.ID
-		AND C.NumeroCuenta=@NumeroCuenta
-
+	SELECT * FROM [dbo].[EstadoCuenta] WHERE [IdCuentaAhorro]=@IdCuenta
+	COMMIT TRANSACTION F15
+	END TRY
+	 BEGIN CATCH
+		IF @@tRANCOUNT>0
+			ROLLBACK TRAN F15;
+		--INSERT EN TABLA DE ERRORES;
+		SET @outCodeResult=50005;
+	 END CATCH
+	 SET NOCOUNT OFF
 END;
 GO
 
+exec GetEstadosCuenta '11000001'
 
 
+DROP PROCEDURE GetEstadosCuenta
 CREATE PROCEDURE dbo.GetMovimientosDeEstado(@IdEstadoCuenta int,
 	@outCodeResult int OUTPUT)
 AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
-	--BEGIN TRANSACTION F16
+
 	DECLARE @TempMovimientos TABLE(
 		Fecha date,
 		Compra money,
@@ -620,7 +661,7 @@ BEGIN
 		
 	WHILE @maxFecha>=@minFecha
 	BEGIN
-	
+	BEGIN TRANSACTION F16
 		INSERT INTO @TempMovimientos(
 			Fecha,
 			Compra,
@@ -646,7 +687,6 @@ BEGIN
 		WHERE @maxFecha=M.Fecha
 			AND M.IdCuentaAhorro=C.ID
 				AND C.IdTipoCuentaAhorro=T.ID
-					AND M.IdEstadoCuenta=@IdEstadoCuenta
 
 		UPDATE @TempMovimientos
 		SET
@@ -670,14 +710,14 @@ BEGIN
 
 		SET @maxFecha=DATEADD(d, -1, @maxFecha)
 	END
-	--COMMIT TRANSACTION F16
+	COMMIT TRANSACTION F16
 
 	SELECT * FROM @TempMovimientos
-	
+
 	END TRY
 	 BEGIN CATCH
 		IF @@tRANCOUNT>0
-			--ROLLBACK TRAN F16;
+			ROLLBACK TRAN F16;
 		--INSERT EN TABLA DE ERRORES;
 		SET @outCodeResult=50005;
 	 END CATCH
@@ -686,44 +726,24 @@ END;
 GO
 
 
+CREATE PROCEDURE dbo.GetEstadosCuenta(@NumeroCuenta varchar(32))
+AS
+BEGIN
 
+	SELECT 
+		E.ID,
+		E.Activo,
+		E.FechaFin,
+		E.FechaInicio,
+		E.IdCuentaAhorro, 
+		E.QOperacionesATM,
+		E.QOperacionesHumano,
+		E.SaldoFinal, 
+		E.SaldoInicial,
+		E.SaldoMinimoMes
+	FROM [dbo].[EstadoCuenta] E, [dbo].[CuentaAhorro] C
+	WHERE [IdCuentaAhorro]=C.ID
+		AND C.NumeroCuenta=@NumeroCuenta
 
-
-
-
---Cuentas Objetivo
-EXEC InsertarCuentaObjetivo '11000001', '8-10-2020', '10-7-2021', 2000, 'Vacaciones', 0, 10, 0
-EXEC InsertarCuentaObjetivo '11327131', '10-10-2020', '10-10-2021', 5000, 'Carro', 0, 10, 0
-EXEC InsertarCuentaObjetivo '11024586', '1-1-2020', '10-5-2021', 275000, 'Departamento', 0, 10, 0
-EXEC InsertarCuentaObjetivo '11592082', '12-3-2020', '7-10-2021', 20700, 'Fiesta', 0, 10, 0
-
-
-EXEC ActualizarCuentaObjetivo '11000001', '1-1-2020', '1-1-2022', 'Casa', 0
-
-EXEC ActivacionCuentaObjetivo '11327131', 0
-EXEC ActivacionCuentaObjetivo '11592082', 0
-
-
-SELECT * FROM CuentaObjetivo
-
-
-
-
-
-
---Estados de Cuenta
-EXEC GetEstadosCuenta '11327131', 0
-EXEC GetEstadosCuenta '11000001', 0
-EXEC GetEstadosCuenta '11024586', 0
-EXEC GetEstadosCuenta '11592082', 0
-
-
-
---Movimientos
-EXEC GetMovimientosDeEstado 1, 0
-EXEC GetMovimientosDeEstado 34, 0
-EXEC GetMovimientosDeEstado 55, 0
-EXEC GetMovimientosDeEstado 50, 0
-
-
-
+END;
+GO

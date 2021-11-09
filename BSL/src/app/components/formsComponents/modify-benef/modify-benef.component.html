@@ -1,0 +1,119 @@
+<div  [formGroup]="registerForm">
+<mat-card class="shipping-card">
+    <mat-card-header>
+      <mat-card-title>Modificar Datos</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Nombre</mat-label>
+            <input matInput type="text" value="{{this.Nombre}}" id="name" formControlName="name">
+          </mat-form-field>
+        </div>
+      <!-- </div> -->
+
+
+
+      <!-- <div class="row"> -->
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Identificación</mat-label>
+            <input matInput id="Identificación" value="{{this.Identificacion}}" id="identificacion" formControlName="id">
+          </mat-form-field>
+        </div>
+      <!-- </div> -->
+    </div>
+
+      <div class="row">
+        <div class="col">
+          <mat-form-field appearance="fill" class="full-width">
+           <mat-label>Cuenta</mat-label>
+           <input matInput disabled value={{this.cuenta}}>
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Porcentaje</mat-label>
+            <input type="number" max="100" min="5" matInput id="porcent" value={{this.Porcentaje}} formControlName="porcent">
+          </mat-form-field>
+        </div>
+
+      </div>
+      <mat-label>Fecha de nacimiento</mat-label>
+      <div class="row">
+          <div class="col">
+
+          <mat-form-field appearance="fill" border-radius="25px" >
+            <mat-label>Dia</mat-label>
+            <input  id="dia" type="number" matInput value="{{this.dia}}" formControlName="dia">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill"  border-radius="25px">
+            <mat-label>Mes</mat-label>
+            <input  id="mes" type="number"  matInput value="{{this.mes}}" formControlName="mes">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill"  border-radius="25px">
+            <mat-label>Año</mat-label>
+            <input  id="año" type="number"  matInput value="{{this.year}}" formControlName="año">
+          </mat-form-field>
+          </div>
+       
+
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-label>Parentesco</mat-label>
+            <mat-select value={{this.Parentesco}}>
+              <mat-option value="1">Padre</mat-option>
+              <mat-option value="2">Madre</mat-option>
+              <mat-option value="3">Hijo</mat-option>
+              <mat-option value="4">Hija</mat-option>
+              <mat-option value="5">Hermano</mat-option>
+              <mat-option value="6">Hermana</mat-option>
+              <mat-option value="7">Amigo</mat-option>
+              <mat-option value="8">Amiga</mat-option>
+              <!-- <mat-option *ngFor="let state of states" [value]="state">{{state}}</mat-option> -->
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="withToEmail" appearance="fill">
+            <mat-icon matSuffix>email</mat-icon>
+            <mat-label>Email</mat-label>
+            <input type="email" max="100" min="5" matInput id="correo"  value={{this.Email}} formControlName="correo">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-icon matSuffix>phone</mat-icon>
+            <input matInput #phonenumber maxlength="12" value={{this.Telefono1}} id="telefono" formControlName="phone1">
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width" appearance="fill">
+            <mat-icon matSuffix>phone</mat-icon>
+            <input matInput #phonenumber maxlength="12"  value={{this.Telefono2}} id="telefono" formControlName="phone2">
+          </mat-form-field>
+        </div>
+      </div>
+
+
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" type="submit"
+        (click)="this.validationBotton()">
+        Modificar Beneficiario
+    </button>
+    </mat-card-actions>
+  </mat-card>
+
+</div>

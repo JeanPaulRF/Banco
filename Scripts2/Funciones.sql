@@ -434,13 +434,16 @@ GO
 CREATE PROCEDURE dbo.GetUser (@Identificacion varchar(32))
 AS
 BEGIN 
-	SELECT * 
-	FROM [dbo].[Usuario] U, [dbo].[Persona] P
+
+	DECLARE @IdUser int;
+	SELECT @IdUser=P.ID
+	FROM [dbo].[Persona] P
 	WHERE P.ValorDocumentoIdentidad=@Identificacion
-		AND P.ID=U.IdPersona
+
+
+	SELECT * FROM [dbo].[Usuario] WHERE IdPersona =	@IdUser
 END;
 GO
-
 
 
 CREATE PROCEDURE dbo.GetUsuariosPuedeVer(@Usuario varchar(16))
@@ -504,40 +507,3 @@ BEGIN
 END;
 GO
 
-EXEC ValidarUsuarioContrasena 'jaguero','LaFacil'
-EXEC GetUser '117370445'
-
-exec GetCuentasDeCliente '117370445'
-
-DROP PROCEDURE GetCuentasDeCliente 
-
-
-
-DROP PROCEDURE GetUser 
-CREATE PROCEDURE dbo.GetUser (@Identificacion varchar(32))
-AS
-BEGIN 
-	SELECT 
-		U.ID,
-		U.Administrador,
-		U.Contrasena,
-		U.IdPersona,
-		U.Nombre
-	FROM [dbo].[Usuario] U, [dbo].[Persona] P
-	WHERE P.ValorDocumentoIdentidad=@Identificacion
-		AND P.ID=U.IdPersona
-END;
-GO
-
-CREATE PROCEDURE dbo.GetCuentasDeCliente(@Identificacion varchar(32))
-AS
-BEGIN
-	SELECT 
-		P.ValorDocumentoIdentidad as Identificacion,
-		C.NumeroCuenta as NumeroCuenta,
-		C.FechaConstitucion as FechaConstitucion,
-		C.IdTipoCuentaAhorro as TipoCuentaAhorro
-	FROM [dbo].[CuentaAhorro] C, [dbo].[Persona] P
-	WHERE P.ValorDocumentoIdentidad=@Identificacion AND C.IdCliente=P.ID
-END;
-GO

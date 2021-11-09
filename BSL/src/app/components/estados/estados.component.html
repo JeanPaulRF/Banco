@@ -1,0 +1,83 @@
+<mat-toolbar color="primary">
+	<mat-icon>account_balance</mat-icon>
+	<a>Banco San Luis</a>
+	<span class="move"></span>
+
+
+	<a>
+		<button mat-button>
+			<mat-icon>face</mat-icon>
+			Beneficiarios
+		</button>
+	</a>
+	<a>
+		<button mat-button>
+			<mat-icon>account_circle</mat-icon>
+			Cuentas Objetivos
+		</button>
+	</a>
+	<!-- <ng-template [ngIf]="this.itsAdmin">
+		<a>
+			<button mat-button (click)="goToClients()">
+				<mat-icon>info</mat-icon>
+				Clientes
+			</button>
+		</a>
+	</ng-template> -->
+	<a routerLink="/login" routerLinkActive="active">
+		<button mat-button>
+			<mat-icon>power_settings_new</mat-icon>
+			LogOut
+		</button>
+	</a>
+
+	<a>
+
+		<button mat-button>
+			<mat-icon>home</mat-icon>
+			Home
+		</button>
+	</a>
+
+
+</mat-toolbar>
+
+<!-- <div style="width:70%; height:100%;background: rgb(219, 219, 219);display:flex;align-items:center"> -->
+<div class="mainDiv">
+	<div class="divTitle">
+		<h1 style="margin-top: 0;text-align:center;font-size: 25px;">Estados de cuenta</h1>
+
+	</div>
+
+	<br style="height:100%">
+	<div class="divCenter">
+	<div *ngFor="let estados of this.listEstados" class="divUsers">
+
+			<div class="divTitle">
+				<h1 style="margin-top: 0;text-align:center;font-size: 25px;"></h1>
+				<mat-toolbar color="accent">
+					<a>
+						<button mat-button  (click)="goToMoves()">
+							<mat-icon>swap_horizontal_circle</mat-icon>
+							Movimientos
+						</button>
+					</a>
+				</mat-toolbar>
+			</div>
+			<!-- <div class="divUsersInformation"> -->
+				<h1> Fecha Inicio: {{ this.hola }}</h1>
+				<h1> Fecha Inicio: {{ estados.FechaInicio }}</h1>
+				<h1> Fecha Fin: {{ estados.FechaFin }}</h1>
+				<h1> Saldo Inicial: {{estados.SaldoInicial }}</h1>
+				<h1> Saldo Final: {{ estados.SaldoFinal }}</h1>
+				<h1> Operaciones en ATM: {{ estados.QOperacionesATM }}</h1>
+				<h1> Operaciones en caja: {{ estados.QOperacionesHumano }}</h1> 
+				
+				
+
+			<!-- </div> -->
+		</div>
+	<!-- </div> -->
+	<br>
+</div>
+<!-- </div> -->

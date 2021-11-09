@@ -1,0 +1,101 @@
+<div  [formGroup]="registerForm">
+    <mat-card class="shipping-card">
+        <mat-card-header>
+          <mat-card-title>Agregar</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+    
+    
+          <div class="row">
+            <div class="col">
+              <mat-form-field appearance="fill" class="full-width">
+               <mat-label>Cuenta</mat-label>
+               <input matInput disabled value="{{this.account}}">
+              </mat-form-field>
+            </div>
+    
+            <div class="col">
+              <mat-form-field class="full-width" appearance="fill">
+                <mat-label>Costo</mat-label>
+                <input type="number"  matInput id="costo" formControlName="costo" >
+              </mat-form-field>
+            </div>
+    
+          </div>
+          <mat-label>Fecha de Inicio</mat-label>
+          <div class="row">
+              <div class="col">
+    
+              <mat-form-field appearance="fill" border-radius="25px" >
+                <mat-label>Dia</mat-label>
+                <input  id="dia" type="number" matInput  formControlName="dia">
+              </mat-form-field>
+    
+              <mat-form-field appearance="fill"  border-radius="25px" >
+                <mat-label>Mes</mat-label>
+                <input  id="mes" type="number"  matInput  formControlName="mes">
+              </mat-form-field>
+    
+              <mat-form-field appearance="fill"  border-radius="25px">
+                <mat-label>Año</mat-label>
+                <input  id="año" type="number"  matInput  formControlName="año" >
+              </mat-form-field>
+              </div>
+           
+    
+            <div class="col">              <mat-form-field class="full-width" appearance="fill">
+                <mat-label>Interes</mat-label>
+                <input type="number"  matInput id="interes" formControlName="interes" >
+              </mat-form-field>
+            </div>
+          </div>
+    
+          <mat-label>Fecha de finalizacion</mat-label>
+          <div class="row">
+              <div class="col">
+    
+              <mat-form-field appearance="fill" border-radius="25px" >
+                <mat-label>Dia</mat-label>
+                <input  id="dia" type="number" matInput  formControlName="dia2">
+              </mat-form-field>
+    
+              <mat-form-field appearance="fill"  border-radius="25px">
+                <mat-label>Mes</mat-label>
+                <input  id="mes" type="number"  matInput  formControlName="mes2">
+              </mat-form-field>
+    
+              <mat-form-field appearance="fill"  border-radius="25px">
+                <mat-label>Año</mat-label>
+                <input  id="año" type="number"  matInput  formControlName="año2">
+              </mat-form-field>
+              </div>
+
+              <div class="col">              
+                <mat-form-field class="full-width" appearance="fill">
+                <mat-label>Saldo</mat-label>
+                <input type="number" matInput id="porcent" formControlName="saldo" >
+              </mat-form-field>
+            </div>
+          </div>
+    
+          <div class="row">
+            <div class="col">
+              <mat-form-field class="full-width" appearance="fill">
+                <mat-label>Objetivo (descripcion)</mat-label>
+                <input matInput formControlName="description">
+              </mat-form-field>
+            </div>
+          </div>
+    
+    
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" type="submit"
+            (click)="this.validationBotton()">
+            Agregar Objetivo
+        </button>
+        </mat-card-actions>
+      </mat-card>
+    
+    </div>
+    <!-- formControlName="phone2" -->

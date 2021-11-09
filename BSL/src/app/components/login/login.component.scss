@@ -1,0 +1,36 @@
+mat-sidenav {
+    width: 200px;
+  }
+  
+  mat-sidenav-content {
+    background-color: #f9fbfb;
+  }
+  
+  mat-sidenav-container {
+    height: 100%;
+  }
+
+  .login-form{
+    padding: 4rem 1 rem;
+    mat-card{
+      max-width: 300px;
+      margin: 2rem auto;
+      height: 350px;
+    }
+  }
+  .full-with-input, button{
+    width: 100%;
+  }
+    .separator {
+      margin-bottom: 2rem;
+    }
+
+    .spacer {
+        flex: 1 1 auto;
+      }
+      
+      a {
+        text-decoration: none;
+        color: #fff;
+      }
+      

@@ -5,7 +5,7 @@ DECLARE @xmlData XML
 
 SET @xmlData = 
 		(SELECT *
-		FROM OPENROWSET(BULK 'C:\Users\Jota\Desktop\BSL2021\Scripts\DatosTarea2.xml', SINGLE_BLOB) 
+		FROM OPENROWSET(BULK 'C:\Archivos\DatosTarea-2.xml', SINGLE_BLOB) 
 		AS xmlData);
 
 
@@ -41,7 +41,7 @@ SELECT
 	T.Item.value('@IdTipoMoneda', 'INT'),
 	T.Item.value('@SaldoMinimo', 'MONEY'),
 	T.Item.value('@MultaSaldoMin', 'MONEY'),
-	T.Item.value('@CargoMensual', 'INT'),
+	T.Item.value('@CargoAnual', 'INT'),
 	T.Item.value('@NumRetirosHumano', 'INT'),
 	T.Item.value('@NumRetirosAutomatico', 'INT'),
 	T.Item.value('@ComisionHumano', 'INT'),
@@ -63,3 +63,5 @@ SELECT
 	T.Item.value('@Descripcion', 'VARCHAR(64)'),
 	T.Item.value('@Operacion', 'INT')
 FROM @xmlData.nodes('Datos/Tipo_Movimientos/TipoMovimiento') as T(Item)
+
+
